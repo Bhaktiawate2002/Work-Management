@@ -18,15 +18,15 @@ module.exports = (sequelize, Sequelize) => {
         proLead: {
             type: Sequelize.STRING
         },
-        client: {
-            type: Sequelize.STRING
-        },
-        proCategory: {
-            type: Sequelize.STRING
-        },
-        proMembers: {
-            type: Sequelize.STRING
-        }
+        // client: {
+        //     type: Sequelize.STRING
+        // },
+        // proCategory: {
+        //     type: Sequelize.STRING
+        // },
+        // proMembers: {
+        //     type: Sequelize.STRING
+        // }
     })
     return project;
 }
