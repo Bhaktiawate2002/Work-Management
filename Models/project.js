@@ -21,9 +21,9 @@ module.exports = (sequelize, Sequelize) => {
         // client: {
         //     type: Sequelize.STRING
         // },
-        // proCategory: {
-        //     type: Sequelize.STRING
-        // },
+        proCategory: {
+            type: Sequelize.STRING
+        },
         // proMembers: {
         //     type: Sequelize.STRING
         // }

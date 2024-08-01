@@ -698,7 +698,7 @@ exports.projectApi = async (req, res) => {
             deadLine: req.body.deadLine,
             proLead: req.body.proLead,
             deptId: req.body.deptId,
-            clientId: req.body.clientId
+            proCategory: req.body.proCategory
         })
         res.status(200).json({ success: 1, data: data, message: "Project created successfully" });
     }
