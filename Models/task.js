@@ -8,12 +8,6 @@ module.exports = (sequelize, Sequelize) => {
         taskName: {
             type: Sequelize.STRING
         },
-        taskCategory: {
-            type: Sequelize.STRING
-        },
-        proName: {
-            type: Sequelize.STRING
-        },
         taskDesc: {
             type: Sequelize.STRING
         },
