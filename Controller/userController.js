@@ -54,7 +54,6 @@ exports.orgRegistration = async (req, res) => {
                         .then(async (theData) => {
                             if (theData) {
                                 await User.create({
-
                                     name: req.body.name,
                                     // gender: req.body.gender,
                                     email: req.body.email,

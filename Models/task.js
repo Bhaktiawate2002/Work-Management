@@ -25,9 +25,6 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DATEONLY,
             defaultValue: Sequelize.NOW
         },
-        taskAssignedTo: {
-            type: Sequelize.STRING
-        },
         startTaskTime: {
             type: Sequelize.TIME,
             defaultValue: Sequelize.NOW

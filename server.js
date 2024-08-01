@@ -38,5 +38,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
-    console.log(`server has started, ${port}`);
+    console.log(`server has started`);
 });
