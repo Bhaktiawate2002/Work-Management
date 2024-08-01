@@ -19,7 +19,6 @@ const multer = require('multer'); // for uploading the photo
 
 const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');  // generating random token
-
 const Mp = Sequelize.Op;
 
 const Org = db.orgs;
@@ -31,8 +30,10 @@ const Task = db.task;
 const Priority = db.priority;
 const Status = db.status;
 const Notes = db.notes;
+const Client = db.client;
+const ProjectAssign = db.projectAssign
 const Category = db.category;
-const Assign = db.assign;
+const TskAssign = db.tskAssign;
 
 // Organisation api
 exports.orgRegistration = async (req, res) => {
@@ -610,27 +611,6 @@ exports.deleteNotes = async (req, res) => {
     }
 }
 
-// Create Task
-exports.createTaskApi = async (req, res) => {
-    try {
-        const data = await Task.create({
-            taskName: req.body.taskName,
-            taskDesc: req.body.taskDesc,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate,
-            priorityId: req.body.priorityId,
-            statusId: req.body.statusId,
-            userId: req.body.userId,
-            proId: req.body.proId,
-            categoryId: req.body.categoryId
-        })
-        res.status(200).json({ success: 1, message: "Task created successfully" });
-    } catch (error) {
-        console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
-    }
-}
-
 // Create priority 
 exports.tskPriorityApi = async (req, res) => {
     try {
@@ -688,7 +668,117 @@ exports.tskStatusList = async (req, res) => {
     }
 }
 
-//create project api
+// Create category 
+exports.tskCategoryApi = async (req, res) => {
+    try {
+        //console.log(req.body);
+        const data = await Category.create({
+            tskCategoryName: req.body.tskCategoryName
+        })
+        res.status(200).json({ success: 1, data: data, message: "Task Category added successfully" });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message });
+    }
+}
+
+// Task category list 
+exports.tskCategoryList = async (req, res) => {
+    try {
+        const showData = await Category.findAll({
+            attributes: ['id', 'tskCategoryName']
+        })
+        res.status(200).json({ success: 1, data: showData });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message });
+    }
+}
+
+// Create Task
+exports.createTaskApi = async (req, res) => {
+    try {
+        const data = await Task.create({
+            taskName: req.body.taskName,
+            taskDesc: req.body.taskDesc,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+            priorityId: req.body.priorityId,
+            statusId: req.body.statusId,
+            userId: req.body.userId,
+            proId: req.body.proId,
+            categoryId: req.body.categoryId
+        })
+        res.status(200).json({ success: 1, message: "Task created successfully" });
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+// Task assign 
+exports.tskAssignApi = async (req, res) => {
+    const { taskId, proId, userId } = req.body;
+    try {
+        // Find the task
+        const task = await Task.findOne({
+            where: { id: taskId }
+        })
+        if (!task) {
+            return res.status(200).json({ success: 0, error: 'Task not found' });
+        }
+
+        // Assign the task to users
+        for (const uId of userId) {
+            TskAssign.findOne({
+                where:
+                {
+                    proId: proId,
+                    taskId: taskId,
+                    userId: uId
+                }
+            })
+                .then(async (develop) => {
+                    if (!develop) {
+                        TskAssign.create({
+                            taskId:taskId,
+                            proId: proId,
+                            userId: uId
+                        })
+                    }
+                })
+        }
+        res.status(200).json({ success: 1, message: "Task Assigned successfully" });
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+// Task assign to/members list 
+exports.tskAssignUserList = async (req, res) => {
+    try {
+        const data = await TskAssign.findAll({
+            where: {
+                taskId: req.body.taskId
+            },
+            include:
+            {
+                model: User, as: 'tblUsers', attributes: ['id', 'name']
+            }
+        });
+        // Extract user data into a flat array
+        const userData = data.map(assign => assign.tblUsers);
+        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in task" })
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+//Create project api
 exports.projectApi = async (req, res) => {
     try {
         const data = await Project.create({
@@ -698,7 +788,8 @@ exports.projectApi = async (req, res) => {
             deadLine: req.body.deadLine,
             proLead: req.body.proLead,
             deptId: req.body.deptId,
-            proCategory: req.body.proCategory
+            clientId: req.body.clientId,
+            orgId: req.body.orgId
         })
         res.status(200).json({ success: 1, data: data, message: "Project created successfully" });
     }
@@ -722,26 +813,25 @@ exports.projectList = async (req, res) => {
     }
 }
 
-// Create category 
-exports.tskCategoryApi = async (req, res) => {
+// Add client Api 
+exports.addClientApi = async (req, res) => {
     try {
-        //console.log(req.body);
-        const data1 = await Category.create({
-            tskCategoryName: req.body.tskCategoryName
+        const data = await Client.create({
+            clientName: req.body.clientName
         })
-        res.status(200).json({ success: 1, data: data1, message: "Task Category added successfully" });
+        res.status(200).json({ success: 1, data: data, message: "Client Name created successfully" });
     }
     catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
     }
 }
 
-// Task category list 
-exports.tskCategoryList = async (req, res) => {
+// Drop down client api 
+exports.clientList = async (req, res) => {
     try {
-        const showData = await Category.findAll({
-            attributes: ['id', 'tskCategoryName']
+        const showData = await Client.findAll({
+            attributes: ['id', 'clientName']
         })
         res.status(200).json({ success: 1, data: showData });
     }
@@ -751,32 +841,74 @@ exports.tskCategoryList = async (req, res) => {
     }
 }
 
-// Task assign to/members
-exports.tskAssignApi = async (req, res) => {
+// Project assign 
+exports.projectAssign = async (req, res) => {
+    const { proId, id, userId } = req.body;
     try {
-        //console.log(req.body);
-        const data = await Assign.create({
-            userId: req.body.userId,
-            taskId: req.body.taskId,
+        // Find the project
+        const project = await Project.findOne({
+            where: { id: proId }
         })
-        res.status(200).json({ success: 1, data: data, message: "Task assigned successfully" });
-    }
-    catch (error) {
+        if (!project) {
+            return res.status(200).json({ success: 0, error: 'Project not found' });
+        }
+
+        // Assign the project to users
+        for (const uId of userId) {
+            ProjectAssign.findOne({
+                where:
+                {
+                    proId: proId,
+                    userId: uId
+                }
+            })
+                .then(async (develop) => {
+                    if (!develop) {
+                        ProjectAssign.create({
+                            proId: proId,
+                            userId: uId
+                        })
+                    }
+                })
+        }
+        res.status(200).json({ success: 1, message: "Project Assigned successfully" });
+    } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
     }
 }
 
-// Task assign to/members list 
-exports.userAssignList = async (req, res) => {
+// User drop down list according to org 
+exports.userDropDownList = async (req, res) => {
     try {
-        const showData = await User.findAll({
-            attributes: ['id', 'name']
+        const data = await User.findAll({
+            attributes: ['id', 'name'],
+            where: { orgId: req.body.orgId },
         })
-        res.status(200).json({ success: 1, data: showData });
-    }
-    catch (error) {
+        res.status(200).json({ success: 1, data: data });
+    } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+// Project assign user list
+exports.proAssignUserList = async (req, res) => {
+    try {
+        const data = await ProjectAssign.findAll({
+            where: {
+                proId: req.body.proId
+            },
+            include:
+            {
+                model: User, as: 'tblUsers', attributes: ['id', 'name']
+            }
+        });
+        // Extract user data into a flat array
+        const userData = data.map(assign => assign.tblUsers);
+        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in project" })
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message })
     }
 }

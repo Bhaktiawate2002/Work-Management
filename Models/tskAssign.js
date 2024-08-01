@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const assign = sequelize.define('tblAssign', {
+    const TskAssign = sequelize.define('tblTskAssign', {
         id: {
             type: Sequelize.BIGINT,
             primaryKey: true,
@@ -16,5 +16,5 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.BIGINT
         }
     })
-    return assign;
+    return TskAssign;
 }

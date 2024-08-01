@@ -1,5 +1,10 @@
 module.exports = (sequelize, Sequelize) => {
     const project = sequelize.define('tblProjects', {
+        id: {
+            type: Sequelize.BIGINT,
+            primaryKey: true,
+            autoIncrement: true
+        },
         proName: {
             type: Sequelize.STRING
         },
@@ -18,15 +23,13 @@ module.exports = (sequelize, Sequelize) => {
         proLead: {
             type: Sequelize.STRING
         },
-        // client: {
-        //     type: Sequelize.STRING
-        // },
-        proCategory: {
-            type: Sequelize.STRING
+        clientId: {
+            type: Sequelize.INTEGER
         },
-        // proMembers: {
-        //     type: Sequelize.STRING
-        // }
+        orgId: {
+            type: Sequelize.INTEGER
+        }
+
     })
     return project;
 }

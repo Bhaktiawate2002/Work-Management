@@ -30,11 +30,16 @@ router.post('/showEmpDetails', userController.showEmpDetails);
 router.post('/createNotes', userController.createNotes);
 router.post('/updateNotes', userController.updateNotes);
 router.post('/deleteNotes', userController.deleteNotes);
-router.post('/createProject', userController.projectApi);
 router.get('/projectList', userController.projectList);
 router.post('/tskCategoryApi', userController.tskCategoryApi);
 router.get('/tskCategoryList', userController.tskCategoryList);
 router.post('/tskAssignApi', userController.tskAssignApi);
-router.get('/userAssignList', userController.userAssignList);
+router.get('/tskAssignUserList', userController.tskAssignUserList);
+router.post('/createProject', userController.projectApi);
+router.post('/addClient', userController.addClientApi);
+router.post('/clientList', userController.clientList);
+router.post('/userDropDownList', userController.userDropDownList);
+router.post('/projectAssign', userController.projectAssign);
+router.post('/proAssignUserList', userController.proAssignUserList);
 
 module.exports = router;
