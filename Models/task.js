@@ -33,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TIME,
             defaultValue: Sequelize.NOW
         },
-        totalTaskTime: {//
+        totalTaskTime: {
             type: Sequelize.TIME
         },
         isPause: {

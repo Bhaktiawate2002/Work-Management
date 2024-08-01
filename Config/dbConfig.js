@@ -32,16 +32,16 @@ db.category = require('../Models/tskCategory')(sequelize, Sequelize);
 db.assign = require('../Models/tskAssign')(sequelize, Sequelize);
 
 // connecting models
-db.user.belongsTo(db.dept, { foreignKey: 'deptId' });
-db.user.belongsTo(db.role, { foreignKey: 'roleId' });
-db.user.belongsTo(db.orgs, { foreignKey: 'orgId' });
-//db.task.belongsTo(db.priority, { foreignKey: 'priorityId' });
+// db.user.belongsTo(db.dept, { foreignKey: 'deptId' });
+// db.user.belongsTo(db.role, { foreignKey: 'roleId' });
+// db.user.belongsTo(db.orgs, { foreignKey: 'orgId' });
+// db.task.belongsTo(db.priority, { foreignKey: 'priorityId' });
 // db.task.belongsTo(db.status, { foreignKey: 'statusId' });
 // db.task.belongsTo(db.category, { foreignKey: 'categoryId' });
 // db.task.belongsTo(db.project, { foreignKey: 'proId' });
 // db.task.belongsTo(db.user, { foreignKey: 'userId' });
 // db.assign.belongsTo(db.task, { foreignKey: 'taskId' });
-db.assign.belongsTo(db.user, { foreignKey: 'userId' });
-db.notes.belongsTo(db.user, { foreignKey: 'userId' });
+// db.assign.belongsTo(db.user, { foreignKey: 'userId' });
+// db.notes.belongsTo(db.user, { foreignKey: 'userId' });
 
 module.exports = db;
