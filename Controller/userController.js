@@ -19,7 +19,6 @@ const multer = require('multer'); // for uploading the photo
 
 const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');  // generating random token
-const tskAssign = require('../Models/tskAssign');
 const Mp = Sequelize.Op;
 
 const Org = db.orgs;
