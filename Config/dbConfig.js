@@ -39,6 +39,7 @@ db.notes = require('../Models/notes')(sequelize, Sequelize);
 db.category = require('../Models/tskCategory')(sequelize, Sequelize);
 db.client = require('../Models/client')(sequelize, Sequelize);
 db.projectAssign = require('../Models/projectAssign')(sequelize, Sequelize);
+db.tskAssign = require('../Models/tskAssign')(sequelize, Sequelize);
 
 // connecting models
 db.user.belongsTo(db.dept, { foreignKey: 'deptId' });
@@ -56,6 +57,10 @@ db.project.belongsTo(db.orgs, { foreignKey: 'orgId' });
 
 db.projectAssign.belongsTo(db.user, { as: 'tblUsers', foreignKey: 'userId' })
 db.projectAssign.belongsTo(db.project, { foreignKey: 'proId' })
+
+db.tskAssign.belongsTo(db.user, { as: 'tblUsers', foreignKey: 'userId' })
+db.tskAssign.belongsTo(db.project, { foreignKey: 'proId' })
+db.tskAssign.belongsTo(db.task, { foreignKey: 'taskId' })
 
 db.notes.belongsTo(db.user, { foreignKey: 'userId' });
 

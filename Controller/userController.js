@@ -33,6 +33,7 @@ const Notes = db.notes;
 const Client = db.client;
 const ProjectAssign = db.projectAssign
 const Category = db.category;
+const TskAssign = db.tskAssign
 
 // Organisation api
 exports.orgRegistration = async (req, res) => {
@@ -563,39 +564,54 @@ exports.searchUser = async (req, res) => {
 // Notes
 exports.createNotes = async (req, res) => {
     try {
-        const data = await User.findOne({ where: { id: req.body.userId } })
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(200).json({ message: errors.array()[0].msg });
+        }
+
+        const data = await User.findOne({ where: { id: req.body.userId } });
         if (!data) {
-            res.status(200).json({ success: 0, message: "User not exist" });
+            return res.status(200).json({ success: 0, message: "User not exist" });
         }
         else {
             const createnote = await Notes.create({
                 notesName: req.body.notesName,
                 userId: req.body.userId
-            })
+            });
+
             res.status(200).json({ success: 1, data: createnote, message: "Notes created successfully" });
         }
-
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
+        res.status(200).json({ success: 0, message: error.message });
     }
 }
 
 // Edit notes
 exports.updateNotes = async (req, res) => {
     try {
-        const data = await Notes.update({
-            notesName: req.body.notesName
-        },
-            {
-                where: { id: req.body.id },
-            })
-        res.status(200).json({ success: 1, data: data, message: "Notes updated successfully" });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(200).json({ message: errors.array()[0].msg });
+            return;
+        } else {
+            const data = await Notes.update(
+                {
+                    notesName: req.body.notesName
+                },
+                {
+                    where: { id: req.body.id },
+                }
+            );
+            res.status(200).json({ success: 1, data: data, message: "Notes updated successfully" });
+        }
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
+        res.status(200).json({ success: 0, message: error.message });
     }
-}
+};
+
 
 // Delete notes
 exports.deleteNotes = async (req, res) => {
@@ -717,23 +733,77 @@ exports.createTaskApi = async (req, res) => {
     }
 }
 
-//List of users in task assign 
-exports.tskAssignUserList = async (req, res) => {
+exports.tskAssign = async (req, res) => {
+    const { taskId, proId, id, userId } = req.body;
     try {
-        await User.findAll({
-            attributes: ['id', 'name']
+        //Find the task
+        const task = await Task.findOne({
+            where: { id: taskId }
         })
-            .then(async (users) => {
-                if (users.length > 0) {
-                    res.status(200).json({ success: 1, data: users });
-                } else {
-                    res.status(200).json({ success: 0, message: "No Users Found" });
+        if (!Task) {
+            return res.status(200).json({ success: 0, error: 'Task not found' });
+        }
+
+        // Assign the task to users
+        for (const uId of userId) {
+            TskAssign.findOne({
+                where:
+                {
+                    taskId: taskId,
+                    proId: proId,
+                    userId: uId
                 }
             })
-    }
-    catch (error) {
+                .then(async (develop) => {
+                    if (!develop) {
+                        TskAssign.create({
+                            taskId: taskId,
+                            proId: proId,
+                            userId: userId
+                        })
+                    }
+                })
+        }
+        res.status(200).json({ success: 1, message: "Task Assigned successfully" });
+    } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+// User drop down list according to org 
+exports.userDropDownList = async (req, res) => {
+    try {
+        const data = await User.findAll({
+            attributes: ['id', 'name'],
+            where: { orgId: req.body.orgId },
+        })
+        res.status(200).json({ success: 1, data: data });
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+// Task assign user list
+exports.taskAssignUserList = async (req, res) => {
+    try {
+        const data = await TskAssign.findAll({
+            where: {
+                taskId: req.body.taskId
+            },
+            include:
+            {
+                model: User, as: 'tblUsers', attributes: ['id', 'name']
+            }
+        });
+
+        // Extract user data into a flat array
+        const userData = data.map(assign => assign.tblUsers);
+        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in task" })
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message })
     }
 }
 
@@ -831,20 +901,6 @@ exports.projectAssign = async (req, res) => {
                 })
         }
         res.status(200).json({ success: 1, message: "Project Assigned successfully" });
-    } catch (error) {
-        console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
-    }
-}
-
-// User drop down list according to org 
-exports.userDropDownList = async (req, res) => {
-    try {
-        const data = await User.findAll({
-            attributes: ['id', 'name'],
-            where: { orgId: req.body.orgId },
-        })
-        res.status(200).json({ success: 1, data: data });
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
