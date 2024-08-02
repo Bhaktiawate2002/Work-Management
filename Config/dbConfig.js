@@ -37,7 +37,6 @@ db.priority = require('../Models/tskPriority')(sequelize, Sequelize);
 db.status = require('../Models/tskStatus')(sequelize, Sequelize);
 db.notes = require('../Models/notes')(sequelize, Sequelize);
 db.category = require('../Models/tskCategory')(sequelize, Sequelize);
-db.tskAssign = require('../Models/tskAssign')(sequelize, Sequelize);
 db.client = require('../Models/client')(sequelize, Sequelize);
 db.projectAssign = require('../Models/projectAssign')(sequelize, Sequelize);
 
@@ -51,10 +50,6 @@ db.task.belongsTo(db.status, { foreignKey: 'statusId' });
 db.task.belongsTo(db.category, { foreignKey: 'categoryId' });
 db.task.belongsTo(db.project, { foreignKey: 'proId' });
 db.task.belongsTo(db.user, { foreignKey: 'userId' });
-
-db.tskAssign.belongsTo(db.task, { foreignKey: 'taskId' });
-db.tskAssign.belongsTo(db.user, { foreignKey: 'userId' });
-db.tskAssign.belongsTo(db.project, { foreignKey: 'proId' });
 
 db.project.belongsTo(db.client, { foreignKey: 'clientId' });
 db.project.belongsTo(db.orgs, { foreignKey: 'orgId' });

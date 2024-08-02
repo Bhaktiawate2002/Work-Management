@@ -19,6 +19,7 @@ const multer = require('multer'); // for uploading the photo
 
 const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');  // generating random token
+const tskAssign = require('../Models/tskAssign');
 const Mp = Sequelize.Op;
 
 const Org = db.orgs;
@@ -33,7 +34,6 @@ const Notes = db.notes;
 const Client = db.client;
 const ProjectAssign = db.projectAssign
 const Category = db.category;
-const TskAssign = db.tskAssign;
 
 // Organisation api
 exports.orgRegistration = async (req, res) => {
@@ -718,63 +718,23 @@ exports.createTaskApi = async (req, res) => {
     }
 }
 
-// Task assign 
-exports.tskAssignApi = async (req, res) => {
-    const { taskId, proId, userId } = req.body;
-    try {
-        // Find the task
-        const task = await Task.findOne({
-            where: { id: taskId }
-        })
-        if (!task) {
-            return res.status(200).json({ success: 0, error: 'Task not found' });
-        }
-
-        // Assign the task to users
-        for (const uId of userId) {
-            TskAssign.findOne({
-                where:
-                {
-                    proId: proId,
-                    taskId: taskId,
-                    userId: uId
-                }
-            })
-                .then(async (develop) => {
-                    if (!develop) {
-                        TskAssign.create({
-                            taskId:taskId,
-                            proId: proId,
-                            userId: uId
-                        })
-                    }
-                })
-        }
-        res.status(200).json({ success: 1, message: "Task Assigned successfully" });
-    } catch (error) {
-        console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
-    }
-}
-
-// Task assign to/members list 
+//List of users in task assign 
 exports.tskAssignUserList = async (req, res) => {
     try {
-        const data = await TskAssign.findAll({
-            where: {
-                taskId: req.body.taskId
-            },
-            include:
-            {
-                model: User, as: 'tblUsers', attributes: ['id', 'name']
-            }
-        });
-        // Extract user data into a flat array
-        const userData = data.map(assign => assign.tblUsers);
-        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in task" })
-    } catch (error) {
+        await User.findAll({
+            attributes: ['id', 'name']
+        })
+            .then(async (users) => {
+                if (users.length > 0) {
+                    res.status(200).json({ success: 1, data: users });
+                } else {
+                    res.status(200).json({ success: 0, message: "No Users Found" });
+                }
+            })
+    }
+    catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
+        res.status(200).json({ success: 0, message: error.message });
     }
 }
 

@@ -33,7 +33,6 @@ router.post('/deleteNotes', userController.deleteNotes);
 router.get('/projectList', userController.projectList);
 router.post('/tskCategoryApi', userController.tskCategoryApi);
 router.get('/tskCategoryList', userController.tskCategoryList);
-router.post('/tskAssignApi', userController.tskAssignApi);
 router.get('/tskAssignUserList', userController.tskAssignUserList);
 router.post('/createProject', userController.projectApi);
 router.post('/addClient', userController.addClientApi);
