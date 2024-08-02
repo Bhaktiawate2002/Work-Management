@@ -3,7 +3,6 @@ const router = express.Router();
 const validation = require('../Middleware/validation');
 
 const userController = require('../Controller/userController');
-//const taskController = require('../Controller/taskController');
 
 router.post('/orgApi', userController.orgRegistration);
 router.post('/registerUserApi', validation.validate('signup'), userController.registerUserApi);
@@ -12,8 +11,8 @@ router.post('/updateUserApi', userController.updateUser);
 router.post('/deleteUserApi', userController.deleteUser);
 router.post('/deptApi', userController.deptApi);
 router.post('/roleApi', userController.roleApi);
-router.get('/deptList', userController.deptList); // dept dropdown api
-router.get('/roleList', userController.roleList); // role dropdown api
+router.get('/deptList', userController.deptList); 
+router.get('/roleList', userController.roleList); 
 router.post('/userDetail', userController.getUserDetail);
 router.post('/updateProfilePic', userController.updateProfilePic);
 router.post('/orgList', userController.orgList);
@@ -33,7 +32,7 @@ router.post('/deleteNotes', userController.deleteNotes);
 router.get('/projectList', userController.projectList);
 router.post('/tskCategoryApi', userController.tskCategoryApi);
 router.get('/tskCategoryList', userController.tskCategoryList);
-router.get('/tskAssignUserList', userController.tskAssignUserList);
+router.get('/userList', userController.userList);
 router.post('/createProject', userController.projectApi);
 router.post('/addClient', userController.addClientApi);
 router.post('/clientList', userController.clientList);
