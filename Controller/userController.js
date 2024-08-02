@@ -718,7 +718,7 @@ exports.createTaskApi = async (req, res) => {
 }
 
 //List of users in task assign 
-exports.userList = async (req, res) => {
+exports.tskAssignUserList = async (req, res) => {
     try {
         await User.findAll({
             attributes: ['id', 'name']
