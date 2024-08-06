@@ -37,5 +37,14 @@ exports.validate = (method) => {
                 check('clientName', "Client Name is required").notEmpty(),
             ]
         }
+
+        case 'projectApi': {
+            return [
+                check('proName', "Project name is required").notEmpty(),
+                check('startDate', "Start date is required").isDate(),
+                check('deptId', "Department ID is required").notEmpty(),
+                check('orgId', "Organization ID is required").notEmpty()
+            ]
+        }
     }
 }

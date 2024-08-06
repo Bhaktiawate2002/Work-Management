@@ -725,7 +725,7 @@ exports.createTaskApi = async (req, res) => {
             proId: req.body.proId,
             categoryId: req.body.categoryId
         })
-        res.status(200).json({ success: 1, message: "Task created successfully" });
+        res.status(200).json({ success: 1, message: "Task created successfully", data: data});
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
@@ -763,7 +763,7 @@ exports.tskAssign = async (req, res) => {
                     }
                 })
         }
-        res.status(200).json({ success: 1, message: "Task Assigned successfully" });
+        res.status(200).json({ success: 1, data: task, message: "Task Assigned successfully" });
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
