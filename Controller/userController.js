@@ -722,7 +722,6 @@ exports.createTaskApi = async (req, res) => {
             endDate: req.body.endDate,
             priorityId: req.body.priorityId,
             statusId: req.body.statusId,
-            userId: req.body.userId,
             proId: req.body.proId,
             categoryId: req.body.categoryId
         })
@@ -776,7 +775,6 @@ exports.userDropDownList = async (req, res) => {
     try {
         const data = await User.findAll({
             attributes: ['id', 'name'],
-            where: { orgId: req.body.orgId },
         })
         res.status(200).json({ success: 1, data: data });
     } catch (error) {
@@ -845,16 +843,23 @@ exports.projectList = async (req, res) => {
 // Add client Api 
 exports.addClientApi = async (req, res) => {
     try {
-        const data = await Client.create({
-            clientName: req.body.clientName
-        })
-        res.status(200).json({ success: 1, data: data, message: "Client Name created successfully" });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(200).json({ message: errors.array()[0].msg });
+            return;
+        } else {
+            const data = await Client.create({
+                clientName: req.body.clientName
+            })
+            res.status(200).json({ success: 1, data: data, message: "Client Name created successfully" });
+        }
     }
     catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
+        res.status(200).json({ success: 0, message: error.message });
     }
 }
+
 
 // Drop down client api 
 exports.clientList = async (req, res) => {
@@ -872,58 +877,72 @@ exports.clientList = async (req, res) => {
 
 // Project assign 
 exports.projectAssign = async (req, res) => {
-    const { proId, id, userId } = req.body;
     try {
+        // Validate request
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(200).json({ message: errors.array()[0].msg });
+        }
+
+        const { proId, id, userId } = req.body;
+
         // Find the project
         const project = await Project.findOne({
             where: { id: proId }
-        })
+        });
+
         if (!project) {
             return res.status(200).json({ success: 0, error: 'Project not found' });
         }
 
         // Assign the project to users
         for (const uId of userId) {
-            ProjectAssign.findOne({
-                where:
-                {
+            const develop = await ProjectAssign.findOne({
+                where: {
                     proId: proId,
                     userId: uId
                 }
-            })
-                .then(async (develop) => {
-                    if (!develop) {
-                        ProjectAssign.create({
-                            proId: proId,
-                            userId: uId
-                        })
-                    }
-                })
+            });
+
+            if (!develop) {
+                await ProjectAssign.create({
+                    proId: proId,
+                    userId: uId
+                });
+            }
         }
+
         res.status(200).json({ success: 1, message: "Project Assigned successfully" });
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
+        res.status(200).json({ success: 0, message: error.message });
     }
 }
 
 // Project assign user list
 exports.proAssignUserList = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(200).json({ message: errors.array()[0].msg });
+            return;
+        }
+
+        // Fetch project assigned users
         const data = await ProjectAssign.findAll({
             where: {
                 proId: req.body.proId
             },
-            include:
-            {
+            include: {
                 model: User, as: 'tblUsers', attributes: ['id', 'name']
             }
         });
+
         // Extract user data into a flat array
         const userData = data.map(assign => assign.tblUsers);
-        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in project" })
+        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in project" });
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message })
+        res.status(200).json({ success: 0, message: error.message });
     }
-}
+};

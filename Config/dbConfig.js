@@ -50,7 +50,6 @@ db.task.belongsTo(db.priority, { foreignKey: 'priorityId' });
 db.task.belongsTo(db.status, { foreignKey: 'statusId' });
 db.task.belongsTo(db.category, { foreignKey: 'categoryId' });
 db.task.belongsTo(db.project, { foreignKey: 'proId' });
-db.task.belongsTo(db.user, { foreignKey: 'userId' });
 
 db.project.belongsTo(db.client, { foreignKey: 'clientId' });
 db.project.belongsTo(db.orgs, { foreignKey: 'orgId' });

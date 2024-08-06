@@ -2,7 +2,7 @@ const { check, body } = require('express-validator');
 
 exports.validate = (method) => {
     switch (method) {
-        case 'signup': {
+        case 'registerUserApi': {
             return [
                 body('email', 'Email required').exists(),
                 check('email', 'Invalid email id').isEmail(),
@@ -11,10 +11,30 @@ exports.validate = (method) => {
                 body('password', "Password required"),
             ]
         }
+
         case 'searchUser': {
             return [
                 check('email', "Enter at least one character").isLength({ min: 1 }),
                 body('orgId', "Enter organisation id"),
+            ]
+        }
+
+        case 'proAssignUserList': {
+            return [
+                body('proId', "Enter project id").not().isEmpty(),
+            ]
+        }
+
+        case 'projectAssign': {
+            return [
+                body('proId', "Enter project id").notEmpty(),
+                body('userId', "Enter user ids").isArray().notEmpty(),
+            ]
+        }
+
+        case 'addClient': {
+            return [
+                check('clientName', "Client Name is required").notEmpty(),
             ]
         }
     }

@@ -5,7 +5,7 @@ const validation = require('../Middleware/validation');
 const userController = require('../Controller/userController');
 
 router.post('/orgApi', userController.orgRegistration);
-router.post('/registerUserApi', validation.validate('signup'), userController.registerUserApi);
+router.post('/registerUserApi', validation.validate('registerUserApi'), userController.registerUserApi);
 router.post('/userLogin', userController.userLogin);
 router.post('/updateUserApi', userController.updateUser);
 router.post('/deleteUserApi', userController.deleteUser);
@@ -35,10 +35,10 @@ router.get('/tskCategoryList', userController.tskCategoryList);
 router.post('/tskAssign', userController.tskAssign);
 router.post('/taskAssignUserList', userController.taskAssignUserList);
 router.post('/createProject', userController.projectApi);
-router.post('/addClient', userController.addClientApi);
+router.post('/addClient', validation.validate('addClient'), userController.addClientApi);
 router.post('/clientList', userController.clientList);
 router.post('/userDropDownList', userController.userDropDownList);
-router.post('/projectAssign', userController.projectAssign);
-router.post('/proAssignUserList', userController.proAssignUserList);
+router.post('/projectAssign', validation.validate('projectAssign'), userController.projectAssign);
+router.post('/proAssignUserList', validation.validate('proAssignUserList'), userController.proAssignUserList);
 
 module.exports = router;
