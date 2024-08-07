@@ -32,7 +32,7 @@ router.post('/deleteNotes', validation.validate('deleteNotes'), userController.d
 router.get('/projectList', userController.projectList);
 router.post('/createTaskCategory', validation.validate('createTaskCategory'), userController.tskCategoryApi);
 router.get('/tskCategoryList', userController.tskCategoryList);
-router.post('/tskAssign', validation.validate('tskAssign'), userController.tskAssign);
+router.post('/tskAssign', userController.tskAssign);
 router.post('/taskAssignUserList', validation.validate('taskAssignUserList'), userController.taskAssignUserList);
 router.post('/projectApi', validation.validate('projectApi'), userController.projectApi);
 router.post('/addClient', validation.validate('addClient'), userController.addClientApi);

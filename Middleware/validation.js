@@ -143,12 +143,6 @@ exports.validate = (method) => {
             ];
         }
 
-        case 'tskAssign': {
-            return [
-                body('userId', "User IDs are required").isArray({ min: 1 }).withMessage("At least one user ID is required")
-            ];
-        }
-
         case 'taskAssignUserList': {
             return [
                 body('taskId', "Task ID is required").notEmpty()

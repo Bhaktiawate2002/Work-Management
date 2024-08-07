@@ -842,10 +842,10 @@ exports.tskAssign = async (req, res) => {
 
     try {
         // Validation check
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(200).json({ message: errors.array()[0].msg });
-        }
+        // const errors = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     return res.status(200).json({ message: errors.array()[0].msg });
+        // }
 
         // Find the task
         // const task = await Task.findOne({ where: { id: taskId } });
