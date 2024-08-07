@@ -6,7 +6,7 @@ module.exports = (sequelize, Sequelize) => {
             autoIncrement: true
         },
         userId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.BIGINT
         },
         taskId: {
             type: Sequelize.INTEGER

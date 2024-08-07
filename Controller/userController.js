@@ -819,7 +819,6 @@ exports.createTaskApi = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
-
         const data = await Task.create({
             taskName: req.body.taskName,
             taskDesc: req.body.taskDesc,

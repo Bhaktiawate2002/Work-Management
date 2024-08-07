@@ -52,7 +52,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         userId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.BIGINT
         },
         priorityId: {
             type: Sequelize.BIGINT
