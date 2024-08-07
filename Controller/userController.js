@@ -869,7 +869,7 @@ exports.tskAssign = async (req, res) => {
             }
         }
 
-        res.status(200).json({ success: 1, data: task, message: "Task Assigned successfully" });
+        res.status(200).json({ success: 1, data: develop, message: "Task Assigned successfully" });
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message });
