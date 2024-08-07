@@ -7,9 +7,6 @@ module.exports = (sequelize, Sequelize) => {
         },
         userId: {
             type: Sequelize.INTEGER
-        },
-        proId: {
-            type: Sequelize.INTEGER
         }
     })
     return projectAssign;
