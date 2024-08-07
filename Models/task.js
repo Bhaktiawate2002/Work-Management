@@ -52,7 +52,8 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         userId: {
-            type: Sequelize.TEXT
+            type: Sequelize.ARRAY(Sequelize.TEXT),
+            defaultValue: [],
         },
         priorityId: {
             type: Sequelize.BIGINT
