@@ -848,8 +848,8 @@ exports.createTaskApi = async (req, res) => {
             if (!develop) {
                 await TaskAssign.create({
                     taskId: data.id,
-                    //proId: proId,
                     userId: uId
+                    //proId: proId
                 });
             }
         }
