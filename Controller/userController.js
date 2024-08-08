@@ -496,8 +496,6 @@ exports.showEmpDetails = async (req, res) => {
                     model: Role, attributes: ['roleName']
                 }
             ],
-            where: { id: userId },
-            raw: true
         });
         res.status(200).json({ success: 1, data: showData });
 
