@@ -827,7 +827,6 @@ exports.createTaskApi = async (req, res) => {
             priorityId: req.body.priorityId,
             statusId: req.body.statusId,
             proId: req.body.proId,
-            userId: req.body.userId,
             categoryId: req.body.categoryId
         });
         res.status(200).json({ success: 1, message: "Task created successfully", data: data });
