@@ -831,9 +831,10 @@ exports.createTaskApi = async (req, res) => {
             taskDesc: req.body.taskDesc,
             startDate: req.body.startDate,
             endDate: req.body.endDate,
-            proId: req.body.projectId,
+            proId: req.body.proId,
             priorityId: req.body.priorityId,
             statusId: req.body.statusId,
+            categoryId: req.body.categoryId
         })
         // task assign to user
         const proId = req.body.proId;
