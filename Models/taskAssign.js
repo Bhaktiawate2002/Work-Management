@@ -1,16 +1,19 @@
 module.exports = (sequelize, Sequelize) => {
-    const projectAssign = sequelize.define('tblProjectAssign', {
+    const tskAssign = sequelize.define('tblTaskAssign', {
         id: {
             type: Sequelize.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
         userId: {
-            type: Sequelize.INTEGER
+            type: Sequelize.BIGINT
         },
         proId: {
             type: Sequelize.INTEGER
+        },
+        taskId: {
+            type: Sequelize.INTEGER
         }
     })
-    return projectAssign;
+    return tskAssign;
 }

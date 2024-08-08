@@ -66,12 +66,6 @@ exports.validate = (method) => {
             ];
         }
 
-        case 'showEmpDetails': {
-            return [
-                body('userId', "Enter a valid user ID").isInt()
-            ];
-        }
-
         case 'getUserDetail': {
             return [
                 body('userId', "Enter user id").notEmpty()
@@ -139,7 +133,6 @@ exports.validate = (method) => {
             return [
                 body('taskName', "Task name is required").notEmpty(),
                 body('startDate', "Start date is required").notEmpty(),
-                body('categoryId', "Category ID is required").notEmpty()
             ];
         }
 
@@ -159,12 +152,6 @@ exports.validate = (method) => {
         case 'addClient': {
             return [
                 check('clientName', "Client Name is required").notEmpty()
-            ]
-        }
-
-        case 'projectAssign': {
-            return [
-                body('userId', "Enter user ids").isArray().notEmpty()
             ]
         }
 

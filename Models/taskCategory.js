@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const category = sequelize.define('tblCategory', {
+    const category = sequelize.define('tblTskCategory', {
         id: {
             type: Sequelize.BIGINT,
             primaryKey: true,

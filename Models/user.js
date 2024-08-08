@@ -38,9 +38,6 @@ module.exports = (sequelize, Sequelize) => {
         roleId: {
             type: Sequelize.BIGINT,
         },
-        orgId: {
-            type: Sequelize.BIGINT
-        },
         resToken: {
             type: Sequelize.STRING,
             default: ''

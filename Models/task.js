@@ -21,13 +21,13 @@ module.exports = (sequelize, Sequelize) => {
         },
         startTaskTime: {
             type: Sequelize.TIME,
-            //defaultValue: Sequelize.NOW
+            // defaultValue: Sequelize.NOW
         },
         endTaskTime: {
             type: Sequelize.TIME,
-            //defaultValue: Sequelize.NOW
+            // defaultValue: Sequelize.NOW
         },
-        totalTaskTime: {
+        totalTaskTime: {//
             type: Sequelize.TIME
         },
         isPause: {
@@ -36,17 +36,20 @@ module.exports = (sequelize, Sequelize) => {
         },
         startPauseTime: {
             type: Sequelize.TIME,
-            //defaultValue: Sequelize.NOW
+            // defaultValue: Sequelize.NOW
         },
         endPauseTime: {
             type: Sequelize.TIME,
-            //defaultValue: Sequelize.NOW
+            // defaultValue: Sequelize.NOW
         },
         totalPauseTime: {//
             type: Sequelize.TIME
         },
         taskProductivityHrs: {//
             type: Sequelize.TIME
+        },
+        userId: {
+            type: Sequelize.INTEGER
         },
         proId: {
             type: Sequelize.INTEGER
@@ -59,7 +62,8 @@ module.exports = (sequelize, Sequelize) => {
         },
         categoryId: {
             type: Sequelize.BIGINT
-        }
+        },
+
     })
     return task;
 }

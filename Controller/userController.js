@@ -3,7 +3,6 @@ const { Sequelize } = require('sequelize');
 
 const fs = require('fs');
 const path = require('path');
-let nextBlock;
 
 const transporter = require('../Config/nodemailerConfig');
 
@@ -31,64 +30,105 @@ const Priority = db.priority;
 const Status = db.status;
 const Notes = db.notes;
 const Client = db.client;
-const ProjectAssign = db.projectAssign
-const Category = db.category;
-const TskAssign = db.tskAssign
+const ProjectAssign = db.projectAssign;
+const OrgUsers = db.orgUser;
+const TaskCategory = db.taskCategory;
+const TaskAssign = db.taskAssign;
 
 // Organisation api
 exports.orgRegistration = async (req, res) => {
     const currentDate = new Date(Date.now()).toISOString().split('T')[0];
-
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(200).json({ message: errors.array()[0].msg });
-    }
-
+    const emailExist = await Org.findOne({ where: { orgEmail: req.body.email } })
     try {
-        const emailExist = await Org.findOne({ where: { orgEmail: req.body.email } });
         if (emailExist) {
-            res.status(200).json({ success: 0, message: "Email already exists" });
+            res.status(200).json({ success: 0, message: "email Already Exists" });
         } else {
             bcrypt.genSalt(saltRounds, async function (err, salt) {
-                if (err) {
-                    return res.status(200).json({ success: 0, message: err.message });
-                }
                 bcrypt.hash(req.body.password, salt, async function (err, hash) {
-                    if (err) {
-                        return res.status(200).json({ success: 0, message: err.message });
-                    }
-                    try {
-                        const theData = await Org.create({
-                            orgName: req.body.name,
-                            orgEmail: req.body.email,
-                            contact: req.body.contact,
+                    const theData = await Org.create({
+                        orgName: req.body.name,
+                        orgEmail: req.body.email,
+                        contact: req.body.contact,
+                        address: req.body.address,
+                        password: hash
+                    })
+                        .then(async (theData) => {
+                            if (theData) {
+                                await User.create({
+                                    name: req.body.name,
+                                    email: req.body.email,
+                                    address: req.body.address,
+                                    contact: req.body.contact,
+                                    joinDate: currentDate,
+                                    password: hash,
+                                    roleId: 1,
+                                    deptId: 10,
+                                    isSuperAdmin: 1
+                                })
+                                    .then(async (theData2) => {
+                                        if (theData2) {
+                                            await OrgUsers.create({
+                                                orgId: theData.id,
+                                                userId: theData2.id
+                                            })
+                                        }
+                                    })
+                                theData.password = undefined;
+                                res.status(200).json({ dataIs: theData, message: "Organization table data added successfully" });
+                            } else {
+                                res.status(200).json({ dataIs: theData, message: "Failed to add Organization" });
+
+                            }
+                        })
+                })
+            })
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, message: error.message });
+    }
+}
+
+// Employee register api
+exports.registerUserApi = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(200).json({ message: errors.array()[0].msg });
+            return;
+        } else {
+            const emailExist = await User.findOne({ where: { email: req.body.email } })
+            if (emailExist) {
+                res.status(200).json({ success: 0, message: "Email Already Exists" });
+            } else {
+                bcrypt.genSalt(saltRounds, async function (err, salt) {
+                    bcrypt.hash(req.body.password, salt, async function (err, hash) {
+                        const inputData = await User.create({
+                            name: req.body.name,
+                            gender: req.body.gender,
+                            email: req.body.email,
                             address: req.body.address,
-                            password: hash
-                        });
-                        if (theData) {
-                            await User.create({
-                                name: req.body.name,
-                                email: req.body.email,
-                                address: req.body.address,
-                                contact: req.body.contact,
-                                joinDate: currentDate,
-                                password: hash,
-                                roleId: 1,
-                                deptId: 10,
-                                orgId: theData.id,
-                                isSuperAdmin: 1
-                            });
-                            theData.password = undefined;
-                            res.status(200).json({ dataIs: theData, message: "Organization table data added successfully" });
-                        } else {
-                            res.status(200).json({ message: "Failed to add Organization" });
-                        }
-                    } catch (error) {
-                        res.status(200).json({ success: 0, message: error.message });
-                    }
-                });
-            });
+                            contact: req.body.contact,
+                            dob: req.body.dob,
+                            joinDate: req.body.joinDate,
+                            password: hash,
+                            roleId: req.body.roleId,
+                            deptId: req.body.deptId,
+                        })
+                            .then(async (theData) => {
+                                if (theData) {
+                                    await OrgUsers.create({
+                                        orgId: req.body.orgId,
+                                        userId: theData.id
+                                    })
+                                    theData.password = undefined;
+                                    res.status(200).json({ success: 1, message: "user table data added successfully", data: theData });
+                                }
+                            })
+                    })
+                })
+            }
         }
     } catch (error) {
         console.log(error);
@@ -96,84 +136,52 @@ exports.orgRegistration = async (req, res) => {
     }
 }
 
-// Employee register api
-// userController.js
-exports.registerUserApi = async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(200).json({ message: errors.array()[0].msg });
-        }
-
-        const emailExist = await User.findOne({ where: { email: req.body.email } });
-        if (emailExist) {
-            return res.status(200).json({ success: 0, message: "Email Already Exists" });
-        }
-
-        bcrypt.genSalt(saltRounds, async function (err, salt) {
-            if (err) {
-                return res.status(500).json({ success: 0, message: err.message });
-            }
-
-            bcrypt.hash(req.body.password, salt, async function (err, hash) {
-                if (err) {
-                    return res.status(500).json({ success: 0, message: err.message });
-                }
-
-                const inputData = await User.create({
-                    name: req.body.name,
-                    gender: req.body.gender,
-                    email: req.body.email,
-                    address: req.body.address,
-                    contact: req.body.contact,
-                    dob: req.body.dob,
-                    joinDate: req.body.joinDate,
-                    password: hash,
-                    roleId: req.body.roleId,
-                    deptId: req.body.deptId,
-                    orgId: req.body.orgId
-                });
-
-                inputData.password = undefined;
-                return res.status(200).json({ success: 1, message: "user table data added successfully" });
-            });
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(200).json({ success: 0, message: error.message });
-    }
-}
-
 // User login api 
 exports.userLogin = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(200).json({ message: errors.array()[0].msg });
-            return;
-        }
-
-        const emailExist = await User.findOne({
-            where: { email: req.body.email }
-        });
+        const emailExist = await OrgUsers.findOne({
+            attributes: [
+                [Sequelize.col('"tblUser"."name"'), "name"],
+                [Sequelize.col('"tblUser"."email"'), "email"],
+                [Sequelize.col('"tblUser"."gender"'), "gender"],
+                [Sequelize.col('"tblUser"."dob"'), "dob"],
+                [Sequelize.col('"tblUser"."joinDate"'), "joinDate"],
+                [Sequelize.col('"tblUser"."address"'), "address"],
+                [Sequelize.col('"tblUser"."contact"'), "contact"],
+                [Sequelize.col('"tblUser"."profile"'), "profile"],
+                [Sequelize.col('"tblUser"."password"'), "password"],
+                [Sequelize.col('"tblUser"."roleId"'), "roleId"],
+                "orgId",
+                "userId"
+            ],
+            include: [
+                {
+                    model: User,
+                    as: "tblUser",
+                    where: { email: req.body.email },
+                    attributes: []
+                }
+            ],
+            raw: true
+        })
 
         if (!emailExist) {
-            res.status(200).json({ message: "User does not exist" });
+            res.status(200).json({ success: 0, message: "user does not exist" })
         } else {
             bcrypt.compare(req.body.password, emailExist.password, (err, result) => {
-                if (err) throw err;
-
                 if (result) {
                     emailExist.password = undefined;
-                    return res.status(200).json({ success: 1, msg: "Login success", data: emailExist });
+                    return res.status(200).json({
+                        success: 1, msg: "Login success", data: emailExist
+                    })
                 } else {
-                    return res.status(200).json({ success: 0, msg: "Invalid credential" });
+                    return res.status(200).json({ success: 0, msg: "Invalid credential" })
                 }
-            });
+            })
         }
     } catch (error) {
         console.log(error);
-        res.status(200).json({ message: error.message });
+        res.status(200).json({ message: error.message })
     }
 }
 
@@ -263,49 +271,59 @@ exports.resetPassword = async (req, res) => {
 };
 
 // Change password
-exports.changePassword = (req, res, next) => {
+exports.changePassword = (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(200).json({ message: errors.array()[0].msg });
+            res.status(200).json({ message: errors.array()[0].msg });
+            return;
         }
-
-        User.findOne({
-            where: {
-                id: req.body.userId
-            }
-        })
-            .then(async (User) => {
-                if (User) {
-                    const passwordIsValid = bcrypt.compareSync(
-                        req.body.oldPassword,
-                        User.password
-                    );
-                    if (!passwordIsValid) {
-                        return res.status(200).json({ success: 0, message: "Old Password does not match!" });
-                    }
-
-                    const { newPassword, confirmPassword } = req.body;
-
-                    if (newPassword !== confirmPassword) {
-                        return res.status(200).json({ success: 0, message: "Confirmation password does not match new password" });
-                    }
-
-                    await User.update({
-                        password: bcrypt.hashSync(newPassword, 10)
-                    }, {
-                        where: { id: req.body.userId }
-                    });
-
-                    return res.status(200).json({ success: 1, message: "Password Changed Successfully" });
-                } else {
-                    res.status(200).json({ success: 0, message: "User Not found." });
+        else {
+            User.findOne({
+                where: {
+                    id: req.body.userId
                 }
             })
-            .catch(err => {
-                res.status(200).json({ message: err.message });
-            });
-    } catch (err) {
+                .then(async User => {
+                    // console.log(req.body.UserId);
+                    if (User) {
+                        var passwordIsValid = bcrypt.compareSync(
+                            req.body.oldPassword,
+                            User.password
+                        );
+                        if (!passwordIsValid) {
+                            return res.status(200).json({ "success": 0, message: "Old Password does not match!" });
+                        }
+                        else {
+                            var pass1 = req.body.newPassword
+                            var pass2 = req.body.confirmPassword
+
+                            if (pass1 != pass2) {
+                                return res.status(200).json({ "success": 0, message: "Confirmation password does not match new password" });
+                            }
+                            else if (pass1 == pass2) {
+                                await User.update({
+                                    password: bcrypt.hashSync(pass2, 10)
+                                },
+                                    { where: { id: req.body.userId } })
+
+                                return res.status(200).json({ "success": 1, message: "Password Changed Successfully" });
+                            }
+                            else {
+                                return res.status(200).json({ "success": 0, message: "New password does not match" });
+                            }
+                        }
+                    }
+                    else {
+                        res.status(200).json({ "success": 0, message: "User Not found." });
+                    }
+                })
+                .catch(err => {
+                    res.status(200).json({ message: err.message });
+                });
+        }
+    }
+    catch (err) {
         return next(err);
     }
 };
@@ -467,27 +485,22 @@ exports.roleList = async (req, res) => {
 // Show employee details
 exports.showEmpDetails = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(200).json({ message: errors.array()[0].msg });
-            return;
-        } else {
-            const { userId } = req.body;
-            const showData = await User.findAll({
-                attributes: ['id', 'name', 'email', 'gender', 'dob', 'joinDate', 'deptId', 'roleId'],
-                include: [
-                    {
-                        model: Dept, attributes: ['deptName']
-                    },
-                    {
-                        model: Role, attributes: ['roleName']
-                    }
-                ],
-                where: { id: userId },
-                raw: true
-            });
-            res.status(200).json({ success: 1, data: showData });
-        }
+        const { userId } = req.body;
+        const showData = await User.findAll({
+            attributes: ['id', 'name', 'email', 'gender', 'dob', 'joinDate', 'deptId', 'roleId'],
+            include: [
+                {
+                    model: Dept, attributes: ['deptName']
+                },
+                {
+                    model: Role, attributes: ['roleName']
+                }
+            ],
+            where: { id: userId },
+            raw: true
+        });
+        res.status(200).json({ success: 1, data: showData });
+
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message });
@@ -531,35 +544,29 @@ exports.getUserDetail = async (req, res) => {
 
 // Update user api 
 exports.updateUser = async (req, res) => {
+    const emailExist = await User.findOne({ where: { email: req.body.email } })
     try {
-        const emailExist = await User.findOne({ where: { email: req.body.email } });
         if (!emailExist) {
             res.status(200).json({ success: 0, message: "Can't Update, email not exist" });
         } else {
             bcrypt.genSalt(saltRounds, async function (err, salt) {
-                if (err) {
-                    throw err;
-                }
-
                 bcrypt.hash(req.body.password, salt, async function (err, hash) {
-                    if (err) {
-                        throw err;
-                    }
-
                     const updateData = await User.update({
+                        name: req.body.name,
+                        roleId: req.body.roleId,
+                        deptId: req.body.deptId,
+                        dob: req.body.dob,
+                        gender: req.body.gender,
                         address: req.body.address,
                         contact: req.body.contact,
-                        profile: req.body.profilepic,
-                        password: hash
                     },
                         {
                             where: { id: req.body.id },
-                        });
-
+                        })
                     updateData.password = undefined;
-                    res.status(200).json({ success: 1, dataIs: updateData, message: "updated successfully" });
-                });
-            });
+                    res.status(200).json({ success: 1, dataIs: updateData, message: "updated succesfully" });
+                })
+            })
         }
     } catch (error) {
         console.log(error);
@@ -785,7 +792,7 @@ exports.tskCategoryApi = async (req, res) => {
             return res.status(200).json({ success: 0, message: errors.array()[0].msg });
         }
 
-        const data = await Category.create({
+        const data = await TaskCategory.create({
             tskCategoryName: req.body.tskCategoryName
         });
         res.status(200).json({ success: 1, data: data, message: "Task Category added successfully" });
@@ -800,7 +807,7 @@ exports.tskCategoryApi = async (req, res) => {
 // Task category list 
 exports.tskCategoryList = async (req, res) => {
     try {
-        const showData = await Category.findAll({
+        const showData = await TaskCategory.findAll({
             attributes: ['id', 'tskCategoryName']
         })
         res.status(200).json({ success: 1, data: showData });
@@ -824,63 +831,41 @@ exports.createTaskApi = async (req, res) => {
             taskDesc: req.body.taskDesc,
             startDate: req.body.startDate,
             endDate: req.body.endDate,
+            proId: req.body.projectId,
             priorityId: req.body.priorityId,
             statusId: req.body.statusId,
-            proId: req.body.proId,
-            categoryId: req.body.categoryId
-        });
-        res.status(200).json({ success: 1, message: "Task created successfully", data: data });
-    } catch (error) {
-        console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
-    }
-}
-
-exports.tskAssign = async (req, res) => {
-    const { proId, userId } = req.body;
-
-    try {
-        // Validation check
-        // const errors = validationResult(req);
-        // if (!errors.isEmpty()) {
-        //     return res.status(200).json({ message: errors.array()[0].msg });
-        // }
-
-        // Find the task
-        // const task = await Task.findOne({ where: { id: taskId } });
-
-        // if (!task) {
-        //     return res.status(200).json({ success: 0, error: 'Task not found' });
-        // }
-
-        // Assign the task to users
-        for (const uId of userId) {
-            const develop = await TskAssign.findOne({
-                where: { proId: proId, userId: uId }
+        })
+        // task assign to user
+        const proId = req.body.proId;
+        for (const uId of req.body.userId) {
+            const develop = await TaskAssign.findOne({
+                where:
+                {
+                    proId: proId,
+                    userId: uId
+                }
             });
-
             if (!develop) {
-                await TskAssign.create({
+                await TaskAssign.create({
+                    taskId: data.id,
                     proId: proId,
                     userId: uId
                 });
             }
         }
-
-        res.status(200).json({ success: 1, data: develop, message: "Task Assigned successfully" });
+        res.status(200).json({ success: 1, data: data, message: "task created & assigned successfully" });
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
     }
-};
-
+}
 
 // User drop down list according to org 
 exports.userDropDownList = async (req, res) => {
     try {
         const data = await User.findAll({
             attributes: ['id', 'name'],
-            // where: { orgId: req.body.orgId },
+            where: { orgId: req.body.orgId },
         })
         res.status(200).json({ success: 1, data: data });
     } catch (error) {
@@ -898,18 +883,22 @@ exports.taskAssignUserList = async (req, res) => {
             return;
         }
 
-        const data = await TskAssign.findAll({
+        const data = await TaskAssign.findAll({
+            attributes: [
+                [Sequelize.col('"tbl_user"."id"'), "id"],
+                [Sequelize.col('"tbl_user"."name"'), "name"],
+            ],
             where: {
                 taskId: req.body.taskId
             },
             include: {
-                model: User, as: 'tblUsers', attributes: ['id', 'name']
+                model: User, as: 'tblUsers', attributes: []
             }
         });
 
         // Extract user data into a flat array
-        const userData = data.map(assign => assign.tblUsers);
-        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in task" });
+        //const userData = data.map(assign => assign.tblUsers);
+        res.status(200).json({ success: 1, data: data, message: "showing assigned user in task" });
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message });
@@ -919,12 +908,6 @@ exports.taskAssignUserList = async (req, res) => {
 //Create project api
 exports.projectApi = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            res.status(200).json({ success: 0, message: errors.array()[0].msg });
-            return;
-        }
-
         const data = await Project.create({
             proName: req.body.proName,
             proDesc: req.body.proDesc,
@@ -934,11 +917,28 @@ exports.projectApi = async (req, res) => {
             deptId: req.body.deptId,
             clientId: req.body.clientId,
             orgId: req.body.orgId
-        });
-        res.status(200).json({ success: 1, data: data, message: "Project created successfully" });
-    } catch (error) {
+        })
+        // project assign to user
+        for (const uId of req.body.userId) {
+            const develop = await ProjectAssign.findOne({
+                where:
+                {
+                    userId: uId
+                }
+            });
+
+            if (!develop) {
+                await ProjectAssign.create({
+                    proId: data.id,
+                    userId: uId
+                });
+            }
+        }
+        res.status(200).json({ success: 1, data: data, message: "Project created & assigned successfully" });
+    }
+    catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
     }
 }
 
@@ -991,49 +991,6 @@ exports.clientList = async (req, res) => {
     }
 }
 
-// Project assign 
-exports.projectAssign = async (req, res) => {
-    try {
-        // Validate request
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(200).json({ message: errors.array()[0].msg });
-        }
-
-        const { userId } = req.body;
-
-        // Find the project
-        // const project = await Project.findOne({
-        //     where: { id: proId }
-        // });
-
-        // if (!project) {
-        //     return res.status(200).json({ success: 0, error: 'Project not found' });
-        // }
-
-        // Assign the project to users
-        for (const uId of userId) {
-            const develop = await ProjectAssign.findOne({
-                where: {
-                    userId: uId
-                }
-            });
-
-            if (!develop) {
-                await ProjectAssign.create({
-                    userId: uId
-                });
-            }
-        }
-
-        res.status(200).json({ success: 1, message: "Project Assigned successfully" });
-    } catch (error) {
-        console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
-    }
-}
-
-// Project assign user list
 exports.proAssignUserList = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -1041,22 +998,41 @@ exports.proAssignUserList = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
-
-        // Fetch project assigned users
         const data = await ProjectAssign.findAll({
+            attributes: [
+                [Sequelize.col('"tbl_user"."id"'), "id"],
+                [Sequelize.col('"tbl_user"."name"'), "name"],
+            ],
             where: {
                 proId: req.body.proId
             },
-            include: {
-                model: User, as: 'tblUsers', attributes: ['id', 'name']
+            include:
+            {
+                model: User, as: 'tblUsers', attributes: []
             }
         });
-
         // Extract user data into a flat array
-        const userData = data.map(assign => assign.tblUsers);
-        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in project" });
+        // const userData = data.map(assign => assign.tblUsers);
+        res.status(200).json({ success: 1, data: userData, message: "showing assigned user in project" })
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, message: error.message });
+        res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+exports.getUserProfileDashboard = async (req, res) => {
+    try {
+        const userId = req.user.id; // Assuming user ID is stored in req.user after authentication
+        const user = await User.findByPk(userId, {
+            attributes: ['profilePhoto', 'name', 'department', 'role', 'id']
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
