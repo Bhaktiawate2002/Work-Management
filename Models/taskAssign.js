@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
         userId: {
             type: Sequelize.BIGINT
         },
+        proId: {
+            type: Sequelize.BIGINT
+        },
         taskId: {
             type: Sequelize.INTEGER
         }

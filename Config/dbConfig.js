@@ -62,6 +62,7 @@ db.task.belongsTo(db.project, { foreignKey: 'proId' });
 
 db.taskAssign.belongsTo(db.user, { foreignKey: 'userId' });
 db.taskAssign.belongsTo(db.task, { foreignKey: 'taskId' });
+db.taskAssign.belongsTo(db.project, { foreignKey: 'proId' });
 
 db.notes.belongsTo(db.user, { foreignKey: 'userId' });
 
