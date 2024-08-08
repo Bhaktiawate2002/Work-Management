@@ -55,14 +55,13 @@ db.project.belongsTo(db.orgs, { foreignKey: 'orgId' });
 db.projectAssign.belongsTo(db.user, { foreignKey: 'userId' })
 db.projectAssign.belongsTo(db.project, { foreignKey: 'proId' })
 
-db.task.belongsTo(db.user, { foreignKey: 'userId' });
 db.task.belongsTo(db.priority, { foreignKey: 'priorityId' });
 db.task.belongsTo(db.status, { foreignKey: 'statusId' });
 db.task.belongsTo(db.taskCategory, { foreignKey: 'categoryId' });
 db.task.belongsTo(db.project, { foreignKey: 'proId' });
 
 db.taskAssign.belongsTo(db.user, { foreignKey: 'userId' });
-db.taskAssign.belongsTo(db.project, { foreignKey: 'proId' });
+//db.taskAssign.belongsTo(db.project, { foreignKey: 'proId' });
 db.taskAssign.belongsTo(db.task, { foreignKey: 'taskId' });
 
 db.notes.belongsTo(db.user, { foreignKey: 'userId' });

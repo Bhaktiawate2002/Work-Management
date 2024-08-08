@@ -48,9 +48,6 @@ module.exports = (sequelize, Sequelize) => {
         taskProductivityHrs: {//
             type: Sequelize.TIME
         },
-        userId: {
-            type: Sequelize.INTEGER
-        },
         proId: {
             type: Sequelize.INTEGER
         },

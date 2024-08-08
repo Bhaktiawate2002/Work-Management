@@ -837,19 +837,18 @@ exports.createTaskApi = async (req, res) => {
             categoryId: req.body.categoryId
         })
         // task assign to user
-        const proId = req.body.proId;
+        // const proId = req.body.proId;
         for (const uId of req.body.userId) {
             const develop = await TaskAssign.findOne({
                 where:
                 {
-                    proId: proId,
                     userId: uId
                 }
             });
             if (!develop) {
                 await TaskAssign.create({
                     taskId: data.id,
-                    proId: proId,
+                    //proId: proId,
                     userId: uId
                 });
             }
