@@ -825,8 +825,7 @@ exports.createTaskApi = async (req, res) => {
             return;
         }
 
-        //console.log("in");
-        const data = await Task.create({
+        await Task.create({
             taskName: req.body.taskName,
             taskDesc: req.body.taskDesc,
             startDate: req.body.startDate,
@@ -837,28 +836,35 @@ exports.createTaskApi = async (req, res) => {
             categoryId: req.body.categoryId
         })
 
-        // task assign to user
-        //console.log(req.body.userId); 
-        for (const uId of req.body.userId) {
-            // console.log(uId); 
-            const develop = await TaskAssign.findOne({
-                where:
-                {
-                    userId: uId
+            // task assign to users
+            .then(async (theData) => {
+                if (theData) {
+                    for (const uId of req.body.userId) {
+                        await TaskAssign.create({
+                            taskId: data.id,
+                            userId: uId
+                        })
+                    }
                 }
-            });
-            if (!develop) {
-                await TaskAssign.create({
-                    taskId: data.id,
-                    userId: uId
-                    // proId: proId
-                })
-                // then((response)=>{
-                //     console.log(response);
-                // })
-            }
-        }
-        res.status(200).json({ success: 1, data: data, message: "task created & assigned successfully" });
+
+                const data = await Task.findOne({
+                    attributes: ['taskName', 'taskDesc', 'startDate', 'endDate', 'proId', 'priorityId', 'statusId', 'categoryId'
+                    [Sequelize.col('"tbl_user"."id"'), "id"],
+                        [Sequelize.col('"tbl_user"."name"'), "name"],
+                    ],
+                    include: [
+                        {
+                            model: TaskAssign, as: 'tblTaskAssign', attributes: [],
+                            include: [
+                                {
+                                    model: User, as: 'tblUsers', attributes: []
+                                }
+                            ],
+                        }
+                    ],
+                });
+            })
+        res.status(200).json({ success: 1, message: "Task created successfully", data: data });
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
