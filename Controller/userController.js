@@ -864,7 +864,7 @@ exports.createTaskApi = async (req, res) => {
                     ],
                 });
             })
-        res.status(200).json({ success: 1, message: "Task created successfully", data: data });
+        res.status(200).json({ success: 1, data: data, message: "Task created successfully" });
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
