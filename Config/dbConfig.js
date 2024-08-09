@@ -3,24 +3,24 @@ const pg = require ('pg');
 const Sequelize = require('sequelize').Sequelize;
 
 
-const sequelize = new Sequelize('workManagement', 'postgres', 'Ram123', {
-    host: 'localhost',
-    dialect: 'postgres',
-    port: '5432',
-    logging: false
-});
-
-// const sequelize = new Sequelize(process.env.DATABASE_URL, {
-//   dialect: 'postgres',
-//   protocol: 'postgres',
-//   logging: false, // Disable logging for production
-//   dialectOptions: {
-//     ssl: {
-//       require: true,
-//       rejectUnauthorized: false, // For self-signed certificates
-//     },
-//   },
+// const sequelize = new Sequelize('workManagement', 'postgres', 'Ram123', {
+//     host: 'localhost',
+//     dialect: 'postgres',
+//     port: '5432',
+//     logging: false
 // });
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  protocol: 'postgres',
+  logging: false, // Disable logging for production
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // For self-signed certificates
+    },
+  },
+});
 
 const db = {};
 db.Sequelize = Sequelize;
