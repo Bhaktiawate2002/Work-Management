@@ -824,8 +824,8 @@ exports.createTaskApi = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
-        {
-            {
+        
+            
                 await Task.create({
                     taskName: req.body.taskName,
                     taskDesc: req.body.taskDesc,
@@ -864,10 +864,11 @@ exports.createTaskApi = async (req, res) => {
                                 }
                             ],
                         });
+
+                        res.status(200).json({ success: 1, data: data, message: "Task created successfully" });
                     })
-            }
-            res.status(200).json({ success: 1, data: data, message: "Task created successfully" });
-        }
+            
+        
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
