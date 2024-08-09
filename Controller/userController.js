@@ -824,6 +824,8 @@ exports.createTaskApi = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
+
+        //console.log("in");
         const data = await Task.create({
             taskName: req.body.taskName,
             taskDesc: req.body.taskDesc,
@@ -834,9 +836,11 @@ exports.createTaskApi = async (req, res) => {
             statusId: req.body.statusId,
             categoryId: req.body.categoryId
         })
+
         // task assign to user
-        // const proId = req.body.proId;
+        //console.log(req.body.userId); 
         for (const uId of req.body.userId) {
+            // console.log(uId); 
             const develop = await TaskAssign.findOne({
                 where:
                 {
@@ -847,8 +851,11 @@ exports.createTaskApi = async (req, res) => {
                 await TaskAssign.create({
                     taskId: data.id,
                     userId: uId
-                    //proId: proId
-                });
+                    // proId: proId
+                })
+                // then((response)=>{
+                //     console.log(response);
+                // })
             }
         }
         res.status(200).json({ success: 1, data: data, message: "task created & assigned successfully" });
