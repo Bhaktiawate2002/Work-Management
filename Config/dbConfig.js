@@ -2,8 +2,7 @@ require('dotenv').config();
 const pg = require ('pg');
 const Sequelize = require('sequelize').Sequelize;
 
-
-// const sequelize = new Sequelize('workManagement', 'postgres', 'Ram123', {
+// const sequelize = new Sequelize('Work Management', 'postgres', 'Ram123', {
 //     host: 'localhost',
 //     dialect: 'postgres',
 //     port: '5432',
@@ -59,9 +58,10 @@ db.task.belongsTo(db.priority, { foreignKey: 'priorityId' });
 db.task.belongsTo(db.status, { foreignKey: 'statusId' });
 db.task.belongsTo(db.taskCategory, { foreignKey: 'categoryId' });
 db.task.belongsTo(db.project, { foreignKey: 'proId' });
+db.task.belongsTo(db.user, { foreignKey: 'userId' });
 
 db.taskAssign.belongsTo(db.user, { foreignKey: 'userId' });
-db.taskAssign.belongsTo(db.task, { foreignKey: 'taskId' });
+db.task.belongsTo(db.taskAssign, { foreignKey: 'userId' });
 db.taskAssign.belongsTo(db.project, { foreignKey: 'proId' });
 
 db.notes.belongsTo(db.user, { foreignKey: 'userId' });

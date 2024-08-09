@@ -824,51 +824,39 @@ exports.createTaskApi = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
-
-        await Task.create({
-            taskName: req.body.taskName,
-            taskDesc: req.body.taskDesc,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate,
-            proId: req.body.proId,
-            priorityId: req.body.priorityId,
-            statusId: req.body.statusId,
-            categoryId: req.body.categoryId
-        })
-
-            // task assign to users
-            .then(async (theData) => {
-                if (theData) {
-                    for (const uId of req.body.userId) {
-                        await TaskAssign.create({
-                            taskId: data.id,
-                            userId: uId
-                        })
-                    }
-                }
-
-                const data = await Task.findOne({
-                    attributes: ['taskName', 'taskDesc', 'startDate', 'endDate', 'proId', 'priorityId', 'statusId', 'categoryId'
-                    [Sequelize.col('"tbl_user"."id"'), "id"],
-                        [Sequelize.col('"tbl_user"."name"'), "name"],
-                    ],
-                    include: [
-                        {
-                            model: TaskAssign, as: 'tblTaskAssign', attributes: [],
-                            include: [
-                                {
-                                    model: User, as: 'tblUsers', attributes: []
-                                }
-                            ],
+        else {
+            for (const uId of req.body.userId)
+                await Task.create({
+                    taskName: req.body.taskName,
+                    taskDesc: req.body.taskDesc,
+                    startDate: req.body.startDate,
+                    endDate: req.body.endDate,
+                    proId: req.body.proId,
+                    priorityId: req.body.priorityId,
+                    statusId: req.body.statusId,
+                    userId: uId,
+                    categoryId: req.body.categoryId
+                }).then(async (theData) => {
+                    if (theData) {
+                        for (const uId of req.body.userId) {
+                            await TaskAssign.create({
+                                taskId: theData.id,
+                                proId: req.body.proId,
+                                userId: uId
+                            }).then(async () => {
+                                const userdetails = await User.findOne({
+                                    where: { id: uId }
+                                })
+                                // theData.dataValues.userName = userdetails.name
+                                // console.log(theData);
+                            })
                         }
-                    ],
-                });
-                console.log(data);
-                
-                res.status(200).json({ success: 1, data: data, message: "Task created successfully" });
-            })
+                        res.status(200).json({ success: 1, data: theData, message: "Task created successfully" });
+                    }
+                })
+        }
     } catch (error) {
-        console.log(error.message);
+        console.log(error);
         res.status(200).json({ success: 0, message: error.message })
     }
 }
@@ -988,7 +976,6 @@ exports.addClientApi = async (req, res) => {
         res.status(200).json({ success: 0, message: error.message });
     }
 }
-
 
 // Drop down client api 
 exports.clientList = async (req, res) => {
