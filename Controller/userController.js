@@ -824,47 +824,50 @@ exports.createTaskApi = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
+        {
+            {
+                await Task.create({
+                    taskName: req.body.taskName,
+                    taskDesc: req.body.taskDesc,
+                    startDate: req.body.startDate,
+                    endDate: req.body.endDate,
+                    proId: req.body.proId,
+                    priorityId: req.body.priorityId,
+                    statusId: req.body.statusId,
+                    categoryId: req.body.categoryId
+                })
 
-        await Task.create({
-            taskName: req.body.taskName,
-            taskDesc: req.body.taskDesc,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate,
-            proId: req.body.proId,
-            priorityId: req.body.priorityId,
-            statusId: req.body.statusId,
-            categoryId: req.body.categoryId
-        })
+                    // task assign to users
+                    .then(async (theData) => {
+                        if (theData) {
+                            for (const uId of req.body.userId) {
+                                await TaskAssign.create({
+                                    taskId: data.id,
+                                    userId: uId
+                                })
+                            }
+                        }
 
-            // task assign to users
-            .then(async (theData) => {
-                if (theData) {
-                    for (const uId of req.body.userId) {
-                        await TaskAssign.create({
-                            taskId: data.id,
-                            userId: uId
-                        })
-                    }
-                }
-
-                const data = await Task.findOne({
-                    attributes: ['taskName', 'taskDesc', 'startDate', 'endDate', 'proId', 'priorityId', 'statusId', 'categoryId'
-                    [Sequelize.col('"tbl_user"."id"'), "id"],
-                        [Sequelize.col('"tbl_user"."name"'), "name"],
-                    ],
-                    include: [
-                        {
-                            model: TaskAssign, as: 'tblTaskAssign', attributes: [],
+                        const data = await Task.findOne({
+                            attributes: ['taskName', 'taskDesc', 'startDate', 'endDate', 'proId', 'priorityId', 'statusId', 'categoryId'
+                            [Sequelize.col('"tbl_user"."id"'), "id"],
+                                [Sequelize.col('"tbl_user"."name"'), "name"],
+                            ],
                             include: [
                                 {
-                                    model: User, as: 'tblUsers', attributes: []
+                                    model: TaskAssign, as: 'tblTaskAssign', attributes: [],
+                                    include: [
+                                        {
+                                            model: User, as: 'tblUsers', attributes: []
+                                        }
+                                    ],
                                 }
                             ],
-                        }
-                    ],
-                });
-            })
-        res.status(200).json({ success: 1, data: data, message: "Task created successfully" });
+                        });
+                    })
+            }
+            res.status(200).json({ success: 1, data: data, message: "Task created successfully" });
+        }
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
