@@ -498,7 +498,6 @@ exports.showEmpDetails = async (req, res) => {
             ],
         });
         res.status(200).json({ success: 1, data: showData });
-
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message });
@@ -861,6 +860,42 @@ exports.createTaskApi = async (req, res) => {
     }
 }
 
+exports.getTask = async (req, res) => {
+    try {
+        const showData = await TaskAssign.findAll({
+            attributes: ['userId',
+                [Sequelize.col('"tblUser"."name"'), "name"],
+                [Sequelize.col('"tblTasks"."id"'), "id"],
+                [Sequelize.col('"tblTasks"."taskName"'), "taskName"],
+                [Sequelize.col('"tblTasks"."startDate"'), "startDate"],
+                [Sequelize.col('"tblTasks"."endDate"'), "endDate"],
+                [Sequelize.col('"tblProjects"."proName"'), "proName"],
+            ],
+            include: [
+                {
+                    model: User,
+                    as: "tblUser",
+                    attributes: []
+                },
+                {
+                    model: Task,
+                    as: "tblTasks",
+                    attributes: []
+                },
+                {
+                    model: Project,
+                    as: "tblProjects",
+                    attributes: []
+                }
+            ]
+        });
+        res.status(200).json({ success: 1, data: showData });
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ message: error.message });
+    }
+}
+
 // User drop down list according to org 
 exports.userDropDownList = async (req, res) => {
     try {
@@ -1017,6 +1052,42 @@ exports.proAssignUserList = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(200).json({ success: 0, message: error.message })
+    }
+}
+
+exports.getProject = async (req, res) => {
+    try {
+        const showData = await ProjectAssign.findAll({
+            attributes: ['userId',
+                [Sequelize.col('"tblClient"."clientName"'), "clientName"],
+                [Sequelize.col('"tblUser"."name"'), "name"],
+                [Sequelize.col('"tblProject"."id"'), "id"],
+                [Sequelize.col('"tblProject"."proName"'), "proName"],
+                [Sequelize.col('"tblProject"."startDate"'), "startDate"],
+                [Sequelize.col('"tblProject"."deadLine"'), "deadLine"],
+            ],
+            include: [
+                {
+                    model: Client,
+                    as: "tblClient",
+                    attributes: []
+                },
+                {
+                    model: User,
+                    as: "tblUser",
+                    attributes: []
+                },
+                {
+                    model: Project,
+                    as: "tblProject",
+                    attributes: []
+                }
+            ]
+        });
+        res.status(200).json({ success: 1, data: showData });
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ message: error.message });
     }
 }
 

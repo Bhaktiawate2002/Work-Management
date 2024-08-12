@@ -10,6 +10,9 @@ router.get('/statusList', userController.tskStatusList);
 router.get('/clientList', userController.clientList);
 router.get('/tskCategoryList', userController.tskCategoryList);
 router.get('/showEmpDetails', userController.showEmpDetails);
+router.get('/getProject', userController.getProject);
+router.get('/projectList', userController.projectList);
+router.get('/getTask', userController.getTask);
 
 router.post('/orgRegistration', validation.validate('orgRegistration'), userController.orgRegistration);
 router.post('/registerUser', validation.validate('registerUser'), userController.registerUserApi);
@@ -31,7 +34,6 @@ router.post('/tskStatusApi', validation.validate('tskStatusApi'), userController
 router.post('/createNotes', validation.validate('createNotes'), userController.createNotes);
 router.post('/updateNotes', validation.validate('updateNotes'), userController.updateNotes);
 router.post('/deleteNotes', validation.validate('deleteNotes'), userController.deleteNotes);
-router.get('/projectList', userController.projectList);
 router.post('/createTaskCategory', validation.validate('createTaskCategory'), userController.tskCategoryApi);
 router.post('/taskAssignUserList', validation.validate('taskAssignUserList'), userController.taskAssignUserList);
 router.post('/projectApi', validation.validate('projectApi'), userController.projectApi);

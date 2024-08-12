@@ -42,10 +42,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TIME,
             // defaultValue: Sequelize.NOW
         },
-        totalPauseTime: {//
+        totalPauseTime: {
             type: Sequelize.TIME
         },
-        taskProductivityHrs: {//
+        taskProductivityHrs: {
             type: Sequelize.TIME
         },
         proId: {
