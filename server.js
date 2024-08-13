@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 4000;
+const port = 4000; //process.env.PORT || 4000;
 
 // const swaggerJsdoc = require('swagger-jsdoc');
 // const swaggerUi = require('swagger-ui-express');
@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 });
 
 const routes = require('./Routes/route');
-app.use('/api', routes);
+app.use('/', routes);  //api
 
 // Error handler middleware
 app.use((err, req, res, next) => {

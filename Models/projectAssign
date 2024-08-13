@@ -10,6 +10,9 @@ module.exports = (sequelize, Sequelize) => {
         },
         proId: {
             type: Sequelize.INTEGER
+        },
+        clientId: {
+            type: Sequelize.BIGINT
         }
     })
     return projectAssign;

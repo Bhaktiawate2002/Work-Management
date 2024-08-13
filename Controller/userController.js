@@ -824,35 +824,33 @@ exports.createTaskApi = async (req, res) => {
             return;
         }
         else {
-            for (const uId of req.body.userId)
-                await Task.create({
-                    taskName: req.body.taskName,
-                    taskDesc: req.body.taskDesc,
-                    startDate: req.body.startDate,
-                    endDate: req.body.endDate,
-                    proId: req.body.proId,
-                    priorityId: req.body.priorityId,
-                    statusId: req.body.statusId,
-                    userId: uId,
-                    categoryId: req.body.categoryId
-                }).then(async (theData) => {
-                    if (theData) {
-                        for (const uId of req.body.userId) {
-                            await TaskAssign.create({
-                                taskId: theData.id,
-                                proId: req.body.proId,
-                                userId: uId
-                            }).then(async () => {
-                                const userdetails = await User.findOne({
-                                    where: { id: uId }
-                                })
-                                // theData.dataValues.userName = userdetails.name
-                                // console.log(theData);
+            await Task.create({
+                taskName: req.body.taskName,
+                taskDesc: req.body.taskDesc,
+                startDate: req.body.startDate,
+                endDate: req.body.endDate,
+                proId: req.body.proId,
+                priorityId: req.body.priorityId,
+                userId: req.body.userId,
+                categoryId: req.body.categoryId
+            }).then(async (theData) => {
+                if (theData) {
+                    for (const uId of req.body.userId) {
+                        await TaskAssign.create({
+                            taskId: theData.id,
+                            proId: req.body.proId,
+                            userId: uId
+                        }).then(async () => {
+                            const userdetails = await User.findOne({
+                                where: { id: uId }
                             })
-                        }
-                        res.status(200).json({ success: 1, data: theData, message: "Task created successfully" });
+                            // theData.dataValues.userName = userdetails.name
+                            // console.log(theData);
+                        })
                     }
-                })
+                    res.status(200).json({ success: 1, data: theData, message: "Task created successfully" });
+                }
+            })
         }
     } catch (error) {
         console.log(error);
@@ -865,11 +863,11 @@ exports.getTask = async (req, res) => {
         const showData = await TaskAssign.findAll({
             attributes: ['userId',
                 [Sequelize.col('"tblUser"."name"'), "name"],
-                [Sequelize.col('"tblTasks"."id"'), "id"],
-                [Sequelize.col('"tblTasks"."taskName"'), "taskName"],
-                [Sequelize.col('"tblTasks"."startDate"'), "startDate"],
-                [Sequelize.col('"tblTasks"."endDate"'), "endDate"],
-                [Sequelize.col('"tblProjects"."proName"'), "proName"],
+                [Sequelize.col('"tblTask"."id"'), "id"],
+                [Sequelize.col('"tblTask"."statusId"'), "statusId"],
+                [Sequelize.col('"tblTask"."taskName"'), "taskName"],
+                [Sequelize.col('"tblTask"."startDate"'), "startDate"],
+                [Sequelize.col('"tblTask"."endDate"'), "endDate"],
             ],
             include: [
                 {
@@ -879,15 +877,11 @@ exports.getTask = async (req, res) => {
                 },
                 {
                     model: Task,
-                    as: "tblTasks",
+                    as: "tblTask",
                     attributes: []
                 },
-                {
-                    model: Project,
-                    as: "tblProjects",
-                    attributes: []
-                }
-            ]
+            ],
+            // where: { userId: req.body.userId },
         });
         res.status(200).json({ success: 1, data: showData });
     } catch (error) {
@@ -918,7 +912,6 @@ exports.taskAssignUserList = async (req, res) => {
             res.status(200).json({ message: errors.array()[0].msg });
             return;
         }
-
         const data = await TaskAssign.findAll({
             attributes: [
                 [Sequelize.col('"tbl_user"."id"'), "id"],
@@ -928,7 +921,9 @@ exports.taskAssignUserList = async (req, res) => {
                 taskId: req.body.taskId
             },
             include: {
-                model: User, as: 'tblUsers', attributes: []
+                model: User,
+                as: 'tblUsers',
+                attributes: []
             }
         });
 
@@ -1107,3 +1102,23 @@ exports.getUserProfileDashboard = async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+exports.timer = async (req, res) => {
+    const emailExist = await User.findOne({ where: { email: req.body.email } })
+    try {
+        if (starTime != "") {
+           Task.update({starTime: req.body.starTime}, {where: {taskId: req.body.taskId}})
+        } else if (pauseTime) {
+                    const updateData = await User.update({
+                        name: req.body.name,
+                    },
+                        {
+                            where: { id: req.body.id },
+                        })
+                    res.status(200).json({ success: 1, dataIs: updateData, message: "updated succesfully" });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(200).json({ success: 0, errorMsg: error.message });
+    }
+}
