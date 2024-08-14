@@ -34,10 +34,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
-        // startPauseTime: {
-        //     type: Sequelize.TIME,
-        //     // defaultValue: Sequelize.NOW
-        // },
+        pauseTime: {
+            type: Sequelize.TIME,
+            // defaultValue: Sequelize.NOW
+        },
         // endPauseTime: {
         //     type: Sequelize.TIME,
         //     // defaultValue: Sequelize.NOW

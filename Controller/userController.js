@@ -225,7 +225,6 @@ exports.forgotPassword = async (req, res) => {
         console.log("Email Sent:%s", info.messageId);
 
         res.status(200).json({ message: 'Reset link sent successfully' });
-
     } catch (err) {
         console.error(err);
         res.status(200).json({ message: 'Server Error' });
@@ -263,6 +262,7 @@ exports.resetPassword = async (req, res) => {
             resToken: null,
             resTokenExpiry: null,
         });
+
         res.json({ message: 'Password reset successful' });
     } catch (err) {
         console.error(err);
@@ -439,6 +439,7 @@ exports.deptList = async (req, res) => {
         const showData = await Dept.findAll({
             attributes: ['id', 'deptName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -461,6 +462,7 @@ exports.roleApi = async (req, res) => {
         const data2 = await Role.create({
             roleName: req.body.roleName
         });
+
         res.status(200).json({ success: 1, data: data2, message: "Role data added successfully" });
     } catch (error) {
         console.log(error);
@@ -474,6 +476,7 @@ exports.roleList = async (req, res) => {
         const showData = await Role.findAll({
             attributes: ['id', 'roleName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -497,6 +500,7 @@ exports.showEmpDetails = async (req, res) => {
                 }
             ],
         });
+
         res.status(200).json({ success: 1, data: showData });
     } catch (error) {
         console.log(error);
@@ -561,6 +565,7 @@ exports.updateUser = async (req, res) => {
                             where: { id: req.body.id },
                         })
                     updateData.password = undefined;
+
                     res.status(200).json({ success: 1, dataIs: updateData, message: "updated succesfully" });
                 })
             })
@@ -582,6 +587,7 @@ exports.deleteUser = async (req, res) => {
             const deleteData = await User.destroy({
                 where: { id: req.body.id },
             });
+
             res.status(200).json({ success: 1, data: deleteData, message: "deleted successfully" });
         }
     } catch (error) {
@@ -684,6 +690,7 @@ exports.updateNotes = async (req, res) => {
                     where: { id: req.body.id },
                 }
             );
+
             res.status(200).json({ success: 1, data: data, message: "Notes updated successfully" });
         }
     } catch (error) {
@@ -703,6 +710,7 @@ exports.deleteNotes = async (req, res) => {
             const data = await Notes.destroy({
                 where: { id: req.body.id },
             });
+
             res.status(200).json({ success: 1, data: data, message: "Notes deleted successfully" });
         }
     } catch (error) {
@@ -739,6 +747,7 @@ exports.tskPriorityList = async (req, res) => {
         const showData = await Priority.findAll({
             attributes: ['id', 'priorityName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -758,6 +767,7 @@ exports.tskStatusApi = async (req, res) => {
             const data = await Status.create({
                 statusName: req.body.statusName
             });
+
             res.status(200).json({ success: 1, data: data, message: "Status data added successfully" });
         }
     } catch (error) {
@@ -773,6 +783,7 @@ exports.tskStatusList = async (req, res) => {
         const showData = await Status.findAll({
             attributes: ['id', 'statusName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -792,6 +803,7 @@ exports.tskCategoryApi = async (req, res) => {
         const data = await TaskCategory.create({
             tskCategoryName: req.body.tskCategoryName
         });
+
         res.status(200).json({ success: 1, data: data, message: "Task Category added successfully" });
     }
     catch (error) {
@@ -807,6 +819,7 @@ exports.tskCategoryList = async (req, res) => {
         const showData = await TaskCategory.findAll({
             attributes: ['id', 'tskCategoryName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -848,6 +861,7 @@ exports.createTaskApi = async (req, res) => {
                             // console.log(theData);
                         })
                     }
+
                     res.status(200).json({ success: 1, data: theData, message: "Task created successfully" });
                 }
             })
@@ -883,6 +897,7 @@ exports.getTask = async (req, res) => {
             ],
             // where: { userId: req.body.userId },
         });
+
         res.status(200).json({ success: 1, data: showData });
     } catch (error) {
         console.log(error);
@@ -897,6 +912,7 @@ exports.userDropDownList = async (req, res) => {
             attributes: ['id', 'name'],
             where: { orgId: req.body.orgId },
         })
+
         res.status(200).json({ success: 1, data: data });
     } catch (error) {
         console.log(error);
@@ -965,6 +981,7 @@ exports.projectApi = async (req, res) => {
                 });
             }
         }
+
         res.status(200).json({ success: 1, data: data, message: "Project created & assigned successfully" });
     }
     catch (error) {
@@ -979,6 +996,7 @@ exports.projectList = async (req, res) => {
         const showData = await Project.findAll({
             attributes: ['id', 'proName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -998,6 +1016,7 @@ exports.addClientApi = async (req, res) => {
             const data = await Client.create({
                 clientName: req.body.clientName
             })
+
             res.status(200).json({ success: 1, data: data, message: "Client Name created successfully" });
         }
     }
@@ -1013,6 +1032,7 @@ exports.clientList = async (req, res) => {
         const showData = await Client.findAll({
             attributes: ['id', 'clientName']
         })
+
         res.status(200).json({ success: 1, data: showData });
     }
     catch (error) {
@@ -1043,6 +1063,7 @@ exports.proAssignUserList = async (req, res) => {
         });
         // Extract user data into a flat array
         // const userData = data.map(assign => assign.tblUsers);
+
         res.status(200).json({ success: 1, data: userData, message: "showing assigned user in project" })
     } catch (error) {
         console.log(error);
@@ -1079,6 +1100,7 @@ exports.getProject = async (req, res) => {
                 }
             ]
         });
+
         res.status(200).json({ success: 1, data: showData });
     } catch (error) {
         console.log(error);
@@ -1090,7 +1112,7 @@ exports.getUserProfileDashboard = async (req, res) => {
     try {
         const userId = req.user.id; // Assuming user ID is stored in req.user after authentication
         const user = await User.findByPk(userId, {
-            attributes: ['profilePhoto', 'name', 'department', 'role', 'id']
+            attributes: ['profile', 'name', 'deptId', 'roleId', 'id']
         });
 
         if (!user) {
@@ -1103,22 +1125,86 @@ exports.getUserProfileDashboard = async (req, res) => {
     }
 };
 
-exports.timer = async (req, res) => {
-    const emailExist = await User.findOne({ where: { email: req.body.email } })
+exports.taskTimer = async (req, res) => {
     try {
-        if (starTime != "") {
-           Task.update({starTime: req.body.starTime}, {where: {taskId: req.body.taskId}})
-        } else if (pauseTime) {
-                    const updateData = await User.update({
-                        name: req.body.name,
-                    },
-                        {
-                            where: { id: req.body.id },
-                        })
-                    res.status(200).json({ success: 1, dataIs: updateData, message: "updated succesfully" });
+        let updateData;
+
+        // Check if startTime is provided
+        if (startTime != "") { //if (req.body.startTime) {
+            updateData = await Task.update(
+                { startTime: req.body.startTime },
+                { where: { taskId: req.body.taskId } }
+            );
         }
+
+        // Check if pauseTime is provided
+        else if (pauseTime) { // else if (req.body.pauseTime) {
+            updateData = await Task.update(
+                {
+                    pauseTime: req.body.pauseTime,
+                    isPause: 1,
+                },
+                { where: { taskId: req.body.taskId } }
+            );
+
+            // Calculate the total hours logged based on startTime and pauseTime
+            const task = await Task.findOne({ where: { taskId: req.body.taskId } });
+            if (task && task.startTime && task.pauseTime) {
+                const startTime = new Date(task.startTime);
+                const pauseTime = new Date(task.pauseTime);
+                const totalHoursLogged = (pauseTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+
+                // Update total hours logged in the database
+                await Task.update(
+                    { totalHoursLogged },
+                    { where: { taskId: req.body.taskId } }
+                );
+            }
+        }
+
+        // Check if endTime is provided
+        else if (endTime) { //else if (req.body.endTime) {
+            updateData = await Task.update(
+                {
+                    endTime: req.body.endTime,
+                    // isCompleted: 1, // Assuming you want to mark the task as completed
+                },
+                { where: { taskId: req.body.taskId } }
+            );
+
+            // Calculate the total hours logged based on startTime and endTime
+            const task = await Task.findOne({ where: { taskId: req.body.taskId } });
+            if (task && task.startTime && task.endTime) {
+                const startTime = new Date(task.startTime);
+                const endTime = new Date(task.endTime);
+                const totalHoursLogged = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+
+                // Update total hours logged in the database
+                await Task.update(
+                    { totalHoursLogged },
+                    { where: { taskId: req.body.taskId } }
+                );
+            }
+        }
+
+        res.status(200).json({ success: 1, dataIs: updateData, message: "Updated successfully" });
     } catch (error) {
         console.log(error);
-        res.status(200).json({ success: 0, errorMsg: error.message });
+        res.status(500).json({ success: 0, errorMsg: error.message });
     }
 }
+
+// const moment = require('moment');
+
+// if (task && task.startTime && task.pauseTime) {
+//     const startTime = moment(task.startTime);
+//     const pauseTime = moment(task.pauseTime);
+
+//     const totalHoursLogged = pauseTime.diff(startTime, 'hours', true); // Get the difference in hours
+
+//     // Update total hours logged in the database
+//     await Task.update(
+//         { totalHoursLogged },
+//         { where: { taskId: req.body.taskId } }
+//     );
+// }
