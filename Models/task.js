@@ -28,11 +28,15 @@ module.exports = (sequelize, Sequelize) => {
             // defaultValue: Sequelize.NOW
         },
         totalHoursLogged: {
-            type: Sequelize.TIME
+            type: Sequelize.FLOAT
         },
         isPause: {
             type: Sequelize.INTEGER,
-            defaultValue: 0
+            // defaultValue: 0
+        },
+        isCompleted: {
+            type: Sequelize.INTEGER,
+            // defaultValue: 0
         },
         pauseTime: {
             type: Sequelize.TIME,

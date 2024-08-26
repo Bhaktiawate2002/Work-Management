@@ -1128,9 +1128,10 @@ exports.getUserProfileDashboard = async (req, res) => {
 exports.taskTimer = async (req, res) => {
     try {
         let updateData;
+        let totalHoursLogged = null;
 
         // Check if startTime is provided
-        if (startTime != "") { //if (req.body.startTime) {
+        if (req.body.startTime) {
             updateData = await Task.update(
                 { startTime: req.body.startTime },
                 { where: { taskId: req.body.taskId } }
@@ -1138,7 +1139,7 @@ exports.taskTimer = async (req, res) => {
         }
 
         // Check if pauseTime is provided
-        else if (pauseTime) { // else if (req.body.pauseTime) {
+        else if (req.body.pauseTime) {
             updateData = await Task.update(
                 {
                     pauseTime: req.body.pauseTime,
@@ -1152,7 +1153,7 @@ exports.taskTimer = async (req, res) => {
             if (task && task.startTime && task.pauseTime) {
                 const startTime = new Date(task.startTime);
                 const pauseTime = new Date(task.pauseTime);
-                const totalHoursLogged = (pauseTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+                totalHoursLogged = (pauseTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
 
                 // Update total hours logged in the database
                 await Task.update(
@@ -1163,11 +1164,11 @@ exports.taskTimer = async (req, res) => {
         }
 
         // Check if endTime is provided
-        else if (endTime) { //else if (req.body.endTime) {
+        else if (req.body.endTime) {
             updateData = await Task.update(
                 {
                     endTime: req.body.endTime,
-                    // isCompleted: 1, // Assuming you want to mark the task as completed
+                    isCompleted: 1, // Assuming you want to mark the task as completed
                 },
                 { where: { taskId: req.body.taskId } }
             );
@@ -1177,7 +1178,7 @@ exports.taskTimer = async (req, res) => {
             if (task && task.startTime && task.endTime) {
                 const startTime = new Date(task.startTime);
                 const endTime = new Date(task.endTime);
-                const totalHoursLogged = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+                totalHoursLogged = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
 
                 // Update total hours logged in the database
                 await Task.update(
@@ -1187,12 +1188,20 @@ exports.taskTimer = async (req, res) => {
             }
         }
 
-        res.status(200).json({ success: 1, dataIs: updateData, message: "Updated successfully" });
+        res.status(200).json({
+            success: 1,
+            dataIs: {
+                updateData,
+                totalHoursLogged
+            },
+            message: "Updated successfully"
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: 0, errorMsg: error.message });
     }
 }
+
 
 // const moment = require('moment');
 

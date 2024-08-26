@@ -40,5 +40,6 @@ router.post('/projectApi', validation.validate('projectApi'), userController.pro
 router.post('/addClient', validation.validate('addClient'), userController.addClientApi);
 router.post('/userDropDownList', userController.userDropDownList);
 router.post('/proAssignUserList', validation.validate('proAssignUserList'), userController.proAssignUserList);
+router.post('/taskTimer', userController.taskTimer);
 
 module.exports = router;

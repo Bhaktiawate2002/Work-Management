@@ -1,9 +1,6 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 4000; //4000;
-
-// const swaggerJsdoc = require('swagger-jsdoc');
-// const swaggerUi = require('swagger-ui-express');
+const port = process.env.PORT || 4000; // 4000;
 
 const dbConfig = require('./Config/dbConfig');
 
