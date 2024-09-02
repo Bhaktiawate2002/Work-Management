@@ -6,7 +6,7 @@ const path = require('path');
 
 const transporter = require('../Config/nodemailerConfig');
 
-const { validationResult } = require("express-validator");
+const { validationResult, body } = require("express-validator");
 
 const bcrypt = require('bcrypt'); // for hashing the password
 const saltRounds = 10;
@@ -20,6 +20,8 @@ const multer = require('multer'); // for uploading the photo
 const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');  // generating random token
 const Mp = Sequelize.Op;
+
+const ExcelJS = require('exceljs');
 
 const Org = db.orgs;
 const User = db.user;
@@ -1316,63 +1318,79 @@ exports.userProfile = async (req, res) => {
 
 exports.taskTimer = async (req, res) => {
     try {
-        let updateData;
+        let updateData = null;
         let totalHoursLogged = null;
+
+        // Fetch the task first to ensure it exists
+        const task = await Task.findOne({ where: { id: req.body.id } });
+        // console.log(req.body);
+
+
+        if (!task) {
+            return res.status(404).json({
+                success: 0,
+                message: "Task not found"
+            });
+        }
 
         // Check if startTime is provided
         if (req.body.startTime) {
             updateData = await Task.update(
                 { startTime: req.body.startTime },
-                { where: { taskId: req.body.taskId } }
+                { where: { id: req.body.id } }
             );
+            // console.log(updateData);  
         }
 
         // Check if pauseTime is provided
         else if (req.body.pauseTime) {
-            updateData = await Task.update(
-                {
-                    pauseTime: req.body.pauseTime,
-                    isPause: 1,
-                },
-                { where: { taskId: req.body.taskId } }
-            );
+            // updateData = await Task.update(
+            //     {
+            //         pauseTime: req.body.pauseTime,
+            //         isPause: 1,
+            //     },
+            //     { where: { id: req.body.id } }
+            // );
 
             // Calculate the total hours logged based on startTime and pauseTime
-            const task = await Task.findOne({ where: { taskId: req.body.taskId } });
-            if (task && task.startTime && task.pauseTime) {
-                const startTime = new Date(task.startTime);
-                const pauseTime = new Date(task.pauseTime);
-                totalHoursLogged = (pauseTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+            if (task. startTime && req.body.pauseTime) {
+                console.log("inn time");
+                // const startTime = new Date(task.startTime);
+                // const pauseTime = new Date(req.body.pauseTime);
+
+                var startTime = new Date(task. startTime);
+                var pauseTime = new Date(req.body.pauseTime);
+                var difference = pauseTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
+                totalHoursLogged = Math.round(difference / 60000);
 
                 // Update total hours logged in the database
-                await Task.update(
-                    { totalHoursLogged },
-                    { where: { taskId: req.body.taskId } }
+                updateData = await Task.update(
+                    { totalHoursLogged: totalHoursLogged, pauseTime: req.body.pauseTime, isPause: 1},
+                    { where: { id: req.body.id } }
                 );
             }
         }
 
         // Check if endTime is provided
         else if (req.body.endTime) {
-            updateData = await Task.update(
-                {
-                    endTime: req.body.endTime,
-                    isCompleted: 1, // Assuming you want to mark the task as completed
-                },
-                { where: { taskId: req.body.taskId } }
-            );
+            // updateData = await Task.update(
+            //     {
+            //         endTime: req.body.endTime,
+            //         isCompleted: 1, // Assuming you want to mark the task as completed
+            //     },
+            //     { where: { id: req.body.id } }
+            // );
 
             // Calculate the total hours logged based on startTime and endTime
-            const task = await Task.findOne({ where: { taskId: req.body.taskId } });
-            if (task && task.startTime && task.endTime) {
+            if (task.startTime && req.body.endTime) {
                 const startTime = new Date(task.startTime);
-                const endTime = new Date(task.endTime);
-                totalHoursLogged = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+                const endTime = new Date(req.body.endTime);
+                const totalHoursLogged = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
 
                 // Update total hours logged in the database
                 await Task.update(
-                    { totalHoursLogged },
-                    { where: { taskId: req.body.taskId } }
+                    {totalHoursLogged: totalHoursLogged,  endTime: req.body.endTime, isCompleted: 1,},
+                    { where: { id: req.body.id } }
                 );
             }
         }
@@ -1389,8 +1407,7 @@ exports.taskTimer = async (req, res) => {
         console.log(error);
         res.status(500).json({ success: 0, errorMsg: error.message });
     }
-}
-
+};
 
 // const moment = require('moment');
 
@@ -1406,3 +1423,82 @@ exports.taskTimer = async (req, res) => {
 //         { where: { taskId: req.body.taskId } }
 //     );
 // }
+
+exports.excelSheet = async (req, res) => {
+    try {
+        // Fetch data from the database
+        const tasks = await Task.findAll();
+
+        // Create a new workbook and add a worksheet
+        const workbook = new ExcelJS.Workbook();  // initializes a new Excel workbook
+        const worksheet = workbook.addWorksheet('Tasks');  // creates a new worksheet within the workbook named "Tasks"
+
+        // Add column headers
+        worksheet.columns = [
+            { header: 'ID', key: 'id', width: 10 },
+            { header: 'Task Name', key: 'taskName', width: 30 },
+            { header: 'Task Description', key: 'taskDesc', width: 40 },
+            // Add other columns as needed
+        ];
+
+        // Add rows to the worksheet
+        tasks.forEach(task => {
+            worksheet.addRow({
+                id: task.id,
+                taskName: task.taskName,
+                taskDesc: task.taskDesc,
+                // Add other columns as needed
+            });
+        });
+
+        // Set the response header for file download
+        res.setHeader('Content-Disposition', 'attachment; filename=tasks.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        // Write to the response stream
+        await workbook.xlsx.write(res);  // writes the Excel file directly to the response stream
+
+        res.end();  //  completes the response to finalize the file transfer
+    } catch (error) {
+        console.error('Error generating Excel file:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+// Update Token 
+exports.editToken = async (req, res) => {
+    try {
+        const id = req.body.id;
+        const resToken = req.body.resToken;
+
+        User.findOne({
+            where: {
+                id: id
+            }
+        })
+            .then(async user => {
+                if (user) {
+                    await User.update({
+                        resToken: resToken
+                    }, { where: { id: id } }
+                    )
+                        .then(token => {
+                            res.status(200).json({ success: 1, message: "Token updated successfully!" });
+                        })
+                        .catch(err => {
+                            res.status(200).json({ success: 0, message: err.message });
+                        });
+                }
+                else {
+
+                    res.status(200).json({ success: 0, message: "User not found." });
+                }
+            })
+            .catch(err => {
+                res.status(200).json({ success: 0, message: err.message });
+            });
+    }
+    catch (err) {
+        console.error(err);
+    }
+};

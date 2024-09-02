@@ -19,16 +19,16 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DATEONLY,
             defaultValue: Sequelize.NOW
         },
-        starTime: {
-            type: Sequelize.TIME,
+        startTime: {
+            type: Sequelize.DATE,
             // defaultValue: Sequelize.NOW
         },
         endTime: {
-            type: Sequelize.TIME,
+            type: Sequelize.DATE,
             // defaultValue: Sequelize.NOW
         },
         totalHoursLogged: {
-            type: Sequelize.FLOAT
+            type: Sequelize.INTEGER,
         },
         isPause: {
             type: Sequelize.INTEGER,
@@ -39,7 +39,7 @@ module.exports = (sequelize, Sequelize) => {
             // defaultValue: 0
         },
         pauseTime: {
-            type: Sequelize.TIME,
+            type: Sequelize.DATE,
             // defaultValue: Sequelize.NOW
         },
         // endPauseTime: {

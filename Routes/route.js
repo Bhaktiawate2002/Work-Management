@@ -13,6 +13,7 @@ router.get('/showEmpDetails', userController.showEmpDetails);
 router.get('/getProject', userController.getProject);
 router.get('/projectList', userController.projectList);
 router.get('/getTask', userController.getTask);
+router.get('/excelSheet', userController.excelSheet);
 
 router.post('/orgRegistration', validation.validate('orgRegistration'), userController.orgRegistration);
 router.post('/registerUser', validation.validate('registerUser'), userController.registerUserApi);
