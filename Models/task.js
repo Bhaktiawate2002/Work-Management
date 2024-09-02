@@ -52,18 +52,15 @@ module.exports = (sequelize, Sequelize) => {
         proId: {
             type: Sequelize.INTEGER
         },
-        userId: {
-            type: Sequelize.TEXT
-        },
         priorityId: {
             type: Sequelize.BIGINT
         },
         statusId: {
-            type: Sequelize.BIGINT
+            type: Sequelize.INTEGER
         },
         categoryId: {
             type: Sequelize.BIGINT
-        },
+        }
     })
     return task;
 }

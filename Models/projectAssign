@@ -13,6 +13,12 @@ module.exports = (sequelize, Sequelize) => {
         },
         clientId: {
             type: Sequelize.BIGINT
+        },
+        orgId: {
+            type: Sequelize.INTEGER
+        },
+        statusId: {
+            type: Sequelize.INTEGER
         }
     })
     return projectAssign;

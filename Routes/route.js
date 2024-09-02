@@ -41,5 +41,6 @@ router.post('/addClient', validation.validate('addClient'), userController.addCl
 router.post('/userDropDownList', userController.userDropDownList);
 router.post('/proAssignUserList', validation.validate('proAssignUserList'), userController.proAssignUserList);
 router.post('/taskTimer', userController.taskTimer);
+router.post('/pieTask', userController.pieTask);
 
 module.exports = router;

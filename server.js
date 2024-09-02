@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 4000; // 4000;
+const port = 4000; // process.env.PORT || 4000; 
 
 const dbConfig = require('./Config/dbConfig');
 
@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 const routes = require('./Routes/route');
-app.use('/api', routes);  //api
+app.use('/', routes);  //api
 
 // Error handler middleware
 app.use((err, req, res, next) => {
