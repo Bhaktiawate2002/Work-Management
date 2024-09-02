@@ -1297,9 +1297,9 @@ exports.pieTask = async (req, res) => {
     }
 }
 
-exports.getUserProfileDashboard = async (req, res) => {
+exports.userProfile = async (req, res) => {
     try {
-        const userId = req.user.id; // Assuming user ID is stored in req.user after authentication
+        const userId = req.body.userId; // Assuming user ID is stored in req.user after authentication
         const user = await User.findByPk(userId, {
             attributes: ['profile', 'name', 'deptId', 'roleId', 'id']
         });
