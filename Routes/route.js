@@ -44,5 +44,6 @@ router.post('/proAssignUserList', validation.validate('proAssignUserList'), user
 router.post('/taskTimer', userController.taskTimer);
 router.post('/pieTask', userController.pieTask);
 router.post('/userProfile', userController.userProfile);
+router.post('/getTaskApi', userController.getTaskApi);
 
 module.exports = router;

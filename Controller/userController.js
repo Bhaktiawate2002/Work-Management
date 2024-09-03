@@ -625,6 +625,7 @@ exports.orgList = async (req, res) => {
 // Search user api
 exports.searchUser = async (req, res) => {
     try {
+        // Validate request
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(200).json({ message: errors.array()[0].msg });
@@ -634,6 +635,10 @@ exports.searchUser = async (req, res) => {
             const showData = await User.findAll({
                 where: {
                     orgId: orgId,
+
+                    // email: The email field is searched using a case-insensitive LIKE operation (Op.iLike)
+                    // The Op.iLike operator is specific to PostgreSQL and performs a case-insensitive match
+
                     email: { [Op.iLike]: `%${email}%` }
                 }
             })
@@ -901,9 +906,9 @@ exports.getTask = async (req, res) => {
             attributes: ['userId',
                 [Sequelize.col('"tblUser"."name"'), "name"],
                 [Sequelize.col('"tblTask"."id"'), "id"],
-                [Sequelize.col('"tblTask"."statusId"'), "statusId"],
                 [Sequelize.col('"tblTask"."taskName"'), "taskName"],
-                [Sequelize.col('"tblTask"."startDate"'), "startDate"],
+                [Sequelize.col('"tblStatus"."statusName"'), "statusName"],
+                [Sequelize.col('"tblTask"."priorityId"'), "priorityId"],
                 [Sequelize.col('"tblTask"."endDate"'), "endDate"],
             ],
             include: [
@@ -915,6 +920,11 @@ exports.getTask = async (req, res) => {
                 {
                     model: Task,
                     as: "tblTask",
+                    attributes: []
+                },
+                {
+                    model: Status,
+                    as: "tblStatus",
                     attributes: []
                 },
             ],
@@ -1010,22 +1020,23 @@ exports.taskAssignUserList = async (req, res) => {
             return;
         }
         const data = await TaskAssign.findAll({
-            attributes: [
-                [Sequelize.col('"tbl_user"."id"'), "id"],
-                [Sequelize.col('"tbl_user"."name"'), "name"],
+            attributes: ['userId',
+                [Sequelize.col('"tblUser"."name"'), "name"],
+                // [Sequelize.col('"tblUser"."id"'), "id"],
             ],
-            where: {
-                taskId: req.body.taskId
-            },
-            include: {
-                model: User,
-                as: 'tblUsers',
-                attributes: []
-            }
+            include: [
+                {
+                    model: User,
+                    as: "tblUser",
+                    attributes: []
+                },
+            ],
+            where: { taskId: req.body.taskId }
         });
 
         // Extract user data into a flat array
         //const userData = data.map(assign => assign.tblUsers);
+
         res.status(200).json({ success: 1, data: data, message: "showing assigned user in task" });
     } catch (error) {
         console.log(error);
@@ -1356,7 +1367,7 @@ exports.taskTimer = async (req, res) => {
 
                 // Update total hours logged in the database
                 updateData = await Task.update(
-                    { totalHoursLogged: totalHoursLogged, pauseTime: req.body.pauseTime, isPause: 1 },  // The isPause flag is set to 1 to indicate that the task is paused.
+                    { totalHoursLogged: totalHoursLogged, pauseTime: req.body.pauseTime, isPause: 1 },  // The isPause flag is set to 1 to indicate that the task is paused
                     { where: { id: req.body.id } }
                 );
             }
@@ -1379,7 +1390,7 @@ exports.taskTimer = async (req, res) => {
 
                 // Update total hours logged in the database
                 await Task.update(
-                    { totalHoursLogged: totalHoursLogged, endTime: req.body.endTime, isCompleted: 1, },  // The isCompleted flag is set to 1 to indicate that the task is completed.
+                    { totalHoursLogged: totalHoursLogged, endTime: req.body.endTime, isCompleted: 1, },  // The isCompleted flag is set to 1 to indicate that the task is completed
                     { where: { id: req.body.id } }
                 );
             }
