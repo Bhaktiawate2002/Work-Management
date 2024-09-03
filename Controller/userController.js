@@ -1323,8 +1323,6 @@ exports.taskTimer = async (req, res) => {
 
         // Fetch the task first to ensure it exists
         const task = await Task.findOne({ where: { id: req.body.id } });
-        // console.log(req.body);
-
 
         if (!task) {
             return res.status(404).json({
@@ -1339,33 +1337,26 @@ exports.taskTimer = async (req, res) => {
                 { startTime: req.body.startTime },
                 { where: { id: req.body.id } }
             );
-            // console.log(updateData);  
         }
 
         // Check if pauseTime is provided
         else if (req.body.pauseTime) {
-            // updateData = await Task.update(
-            //     {
-            //         pauseTime: req.body.pauseTime,
-            //         isPause: 1,
-            //     },
-            //     { where: { id: req.body.id } }
-            // );
 
             // Calculate the total hours logged based on startTime and pauseTime
-            if (task. startTime && req.body.pauseTime) {
-                console.log("inn time");
-                // const startTime = new Date(task.startTime);
-                // const pauseTime = new Date(req.body.pauseTime);
-
-                var startTime = new Date(task. startTime);
+            if (task.startTime && req.body.pauseTime) {
+                var startTime = new Date(task.startTime);
                 var pauseTime = new Date(req.body.pauseTime);
                 var difference = pauseTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
                 totalHoursLogged = Math.round(difference / 60000);
 
+                // additionalLoggedTime = Math.round(difference / 60000); // convert to minutes
+
+                // // Accumulate the logged time
+                // var newTotalHoursLogged = task.totalHoursLogged + additionalLoggedTime;
+
                 // Update total hours logged in the database
                 updateData = await Task.update(
-                    { totalHoursLogged: totalHoursLogged, pauseTime: req.body.pauseTime, isPause: 1},
+                    { totalHoursLogged: totalHoursLogged, pauseTime: req.body.pauseTime, isPause: 1 },  // The isPause flag is set to 1 to indicate that the task is paused.
                     { where: { id: req.body.id } }
                 );
             }
@@ -1373,23 +1364,22 @@ exports.taskTimer = async (req, res) => {
 
         // Check if endTime is provided
         else if (req.body.endTime) {
-            // updateData = await Task.update(
-            //     {
-            //         endTime: req.body.endTime,
-            //         isCompleted: 1, // Assuming you want to mark the task as completed
-            //     },
-            //     { where: { id: req.body.id } }
-            // );
 
             // Calculate the total hours logged based on startTime and endTime
             if (task.startTime && req.body.endTime) {
-                const startTime = new Date(task.startTime);
-                const endTime = new Date(req.body.endTime);
-                const totalHoursLogged = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+                var startTime = new Date(task.startTime);
+                var endTime = new Date(req.body.endTime);
+                var difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
+                totalHoursLogged = Math.round(difference / 60000);
+
+                // additionalLoggedTime = Math.round(difference / 60000); // convert to minutes
+
+                // // Accumulate the logged time
+                // var newTotalHoursLogged = task.totalHoursLogged + additionalLoggedTime;
 
                 // Update total hours logged in the database
                 await Task.update(
-                    {totalHoursLogged: totalHoursLogged,  endTime: req.body.endTime, isCompleted: 1,},
+                    { totalHoursLogged: totalHoursLogged, endTime: req.body.endTime, isCompleted: 1, },  // The isCompleted flag is set to 1 to indicate that the task is completed.
                     { where: { id: req.body.id } }
                 );
             }
@@ -1399,7 +1389,7 @@ exports.taskTimer = async (req, res) => {
             success: 1,
             dataIs: {
                 updateData,
-                totalHoursLogged
+                totalHoursLogged  // totalHoursLogged: task.totalHoursLogged + additionalLoggedTime // returning the updated total
             },
             message: "Updated successfully"
         });
@@ -1408,21 +1398,6 @@ exports.taskTimer = async (req, res) => {
         res.status(500).json({ success: 0, errorMsg: error.message });
     }
 };
-
-// const moment = require('moment');
-
-// if (task && task.startTime && task.pauseTime) {
-//     const startTime = moment(task.startTime);
-//     const pauseTime = moment(task.pauseTime);
-
-//     const totalHoursLogged = pauseTime.diff(startTime, 'hours', true); // Get the difference in hours
-
-//     // Update total hours logged in the database
-//     await Task.update(
-//         { totalHoursLogged },
-//         { where: { taskId: req.body.taskId } }
-//     );
-// }
 
 exports.excelSheet = async (req, res) => {
     try {

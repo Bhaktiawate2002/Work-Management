@@ -42,13 +42,6 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DATE,
             // defaultValue: Sequelize.NOW
         },
-        // endPauseTime: {
-        //     type: Sequelize.TIME,
-        //     // defaultValue: Sequelize.NOW
-        // },
-        // totalPauseTime: {
-        //     type: Sequelize.TIME
-        // },
         proId: {
             type: Sequelize.INTEGER
         },
