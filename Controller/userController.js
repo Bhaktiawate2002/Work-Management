@@ -15,7 +15,7 @@ const moment = require('moment');
 const multer = require('multer'); // for uploading files
 
 const csv = require('csv-parser');
-const upload = require('./upload'); // import multer configuration
+// const upload = require('./upload'); // import multer configuration
 // const upload = multer({ dest: 'uploads/' }); // Files will be stored in 'uploads/' directory
 
 //const nodemailer = require('nodemailer'); // sending mail to any user
@@ -336,33 +336,33 @@ exports.changePassword = (req, res) => {
 };
 
 // Profile_Pic Upload by using MULTER 
-var storage = multer.diskStorage({
-    destination: async function (req, file, cb) {
-        const directory = `./Public/`//${req.query.userId}
-        if (!fs.existsSync(directory)) {
-            fs.mkdirSync(directory, { recursive: true })
-        }
+// var storage = multer.diskStorage({
+//     destination: async function (req, file, cb) {
+//         const directory = `./Public/`//${req.query.userId}
+//         if (!fs.existsSync(directory)) {
+//             fs.mkdirSync(directory, { recursive: true })
+//         }
 
-        cb(null, directory)
-    },
-    filename: function (req, file, callback) {
+//         cb(null, directory)
+//     },
+//     filename: function (req, file, callback) {
 
-        const ext = file.mimetype.split('/')[1];
-        callback(null, `User-${Date.now()}.${ext}`);
-    }
-});
+//         const ext = file.mimetype.split('/')[1];
+//         callback(null, `User-${Date.now()}.${ext}`);
+//     }
+// });
 
-var upload = multer({
-    storage: storage,
-    limits: { fileSize: 10000000 },
-    fileFilter: function (req, file, cb) {
-        if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
-            req.fileValidationError = 'Only image files are allowed!';
-            return cb(null, false);
-        }
-        cb(null, true);
-    }
-}).single("profile");
+// var upload = multer({
+//     storage: storage,
+//     limits: { fileSize: 10000000 },
+//     fileFilter: function (req, file, cb) {
+//         if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG)$/)) {
+//             req.fileValidationError = 'Only image files are allowed!';
+//             return cb(null, false);
+//         }
+//         cb(null, true);
+//     }
+// }).single("profile");
 
 exports.updateProfilePic = async (req, res) => {
     try {
@@ -1495,6 +1495,12 @@ exports.editToken = async (req, res) => {
 };
 
 // Import CSV file
+// Check if the uploads directory exists, if not, create it
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {  // Checks if the uploads/ directory exists
+    fs.mkdirSync(uploadDir);  // Creates the uploads/ directory if it doesn't exist
+}
+
 // configuring Multer to handle CSV file uploads
 const storage = multer.diskStorage({  // diskStorage: configures how and where the uploaded files will be stored on the disk.
     destination: (req, file, cb) => {
@@ -1508,7 +1514,7 @@ const storage = multer.diskStorage({  // diskStorage: configures how and where t
 const upload = multer({ storage: storage });  //  Multer instance configured, used in the route to handle file uploads
 
 // Function to handle CSV import
-const importCsv = async (req, res) => {
+exports.importCsv = async (req, res) => {
     const results = [];  // Initialization of results Array: store the rows of data read from the CSV file
     try {
         const fileStream = fs.createReadStream(req.file.path);  // creates a readable stream from the uploaded CSV file

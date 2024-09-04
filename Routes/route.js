@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validation = require('../Middleware/validation');
-const userController = require('../Controller/userControrlle');
+const userController = require('../Controller/userController');
 
 router.get('/deptList', userController.deptList);
 router.get('/roleList', userController.roleList);
@@ -27,12 +27,12 @@ router.post('/updateProfilePic', userController.updateProfilePic);
 router.post('/orgList', validation.validate('orgList'), userController.orgList);
 router.post('/searchUser', validation.validate('searchUser'), userController.searchUser);
 router.post('/forgotPassword', validation.validate('forgotPassword'), userController.forgotPassword);
-router.post('/resetPassword', validation.valiler.changePassword);
+router.post('/resetPassword', validation.validate('resetPassword'), userController.resetPassword);
+router.post('/changePassword', validation.validate('changePassword'), userController.changePassword);
 router.post('/createTask', validation.validate('createTask'), userController.createTaskApi);
 router.post('/tskPriorityApi', validation.validate('tskPriorityApi'), userController.tskPriorityApi);
 router.post('/tskStatusApi', validation.validate('tskStatusApi'), userController.tskStatusApi);
-router.post('/createNotes', validatidate('resetPassword'), userController.resetPassword);
-router.post('/changePassword', validation.validate('changePassword'), userControlon.validate('createNotes'), userController.createNotes);
+router.post('/createNotes', validation.validate('createNotes'), userController.createNotes);
 router.post('/updateNotes', validation.validate('updateNotes'), userController.updateNotes);
 router.post('/deleteNotes', validation.validate('deleteNotes'), userController.deleteNotes);
 router.post('/createTaskCategory', validation.validate('createTaskCategory'), userController.tskCategoryApi);
@@ -45,6 +45,6 @@ router.post('/taskTimer', userController.taskTimer);
 router.post('/pieTask', userController.pieTask);
 router.post('/userProfile', userController.userProfile);
 router.post('/getTaskApi', userController.getTaskApi);
-router.post('import-csv', upload.single('file'), importCsv);
+router.post('/importCsv', userController.importCsv);
 
 module.exports = router;
