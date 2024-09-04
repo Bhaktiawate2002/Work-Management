@@ -12,7 +12,11 @@ const bcrypt = require('bcrypt'); // for hashing the password
 const saltRounds = 10;
 
 const moment = require('moment');
-const multer = require('multer'); // for uploading the photo
+const multer = require('multer'); // for uploading files
+
+const csv = require('csv-parser');
+const upload = require('./upload'); // import multer configuration
+// const upload = multer({ dest: 'uploads/' }); // Files will be stored in 'uploads/' directory
 
 //const nodemailer = require('nodemailer'); // sending mail to any user
 //const randomstring = require('randomstring'); // generate random token
@@ -1410,6 +1414,7 @@ exports.taskTimer = async (req, res) => {
     }
 };
 
+// Create excel file
 exports.excelSheet = async (req, res) => {
     try {
         // Fetch data from the database
@@ -1486,5 +1491,41 @@ exports.editToken = async (req, res) => {
     }
     catch (err) {
         console.error(err);
+    }
+};
+
+// Import CSV file
+// configuring Multer to handle CSV file uploads
+const storage = multer.diskStorage({  // diskStorage: configures how and where the uploaded files will be stored on the disk.
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');  // Specifies the directory where the uploaded files will be stored
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`); // Generates a unique filename using the current timestamp and the original filename
+    }
+});
+
+const upload = multer({ storage: storage });  //  Multer instance configured, used in the route to handle file uploads
+
+// Function to handle CSV import
+const importCsv = async (req, res) => {
+    const results = [];  // Initialization of results Array: store the rows of data read from the CSV file
+    try {
+        const fileStream = fs.createReadStream(req.file.path);  // creates a readable stream from the uploaded CSV file
+        fileStream.pipe(csv())  // file stream is piped through the csv() function, which parses the CSV data row by row
+            .on('data', (data) => results.push(data))
+            .on('end', async () => {  // This event is triggered when the entire CSV file has been read and parsed
+                try {
+                    await Dept.bulkCreate(results);  // bulkCreate method to insert all rows of data stored in the results array
+                    fs.unlinkSync(req.file.path); // Delete the file after processing
+                    res.status(200).json({ message: 'CSV data imported successfully!' });
+                } catch (error) {
+                    console.error('Error inserting data into the database:', error);
+                    res.status(500).json({ message: 'Failed to import CSV data into the database' });
+                }
+            });
+    } catch (error) {
+        console.error('Error reading the CSV file:', error);
+        res.status(500).json({ message: 'Failed to process the CSV file' });
     }
 };
