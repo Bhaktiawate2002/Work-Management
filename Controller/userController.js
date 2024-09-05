@@ -1494,36 +1494,21 @@ exports.editToken = async (req, res) => {
     }
 };
 
-// Import CSV file
-// Check if the uploads directory exists, if not, create it
-const uploadDir = 'uploads/';
-if (!fs.existsSync(uploadDir)) {  // Checks if the uploads/ directory exists
-    fs.mkdirSync(uploadDir);  // Creates the uploads/ directory if it doesn't exist
-}
-
-// configuring Multer to handle CSV file uploads
-const storage = multer.diskStorage({  // diskStorage: configures how and where the uploaded files will be stored on the disk.
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');  // Specifies the directory where the uploaded files will be stored
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`); // Generates a unique filename using the current timestamp and the original filename
-    }
-});
-
-const upload = multer({ storage: storage });  //  Multer instance configured, used in the route to handle file uploads
-
 // Function to handle CSV import
 exports.importCsv = async (req, res) => {
-    const results = [];  // Initialization of results Array: store the rows of data read from the CSV file
+    const results = [];  // Initialization of results array to store the rows of data read from the CSV file
     try {
-        const fileStream = fs.createReadStream(req.file.path);  // creates a readable stream from the uploaded CSV file
-        fileStream.pipe(csv())  // file stream is piped through the csv() function, which parses the CSV data row by row
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const fileStream = fs.createReadStream(req.file.path);  // Creates a readable stream from the uploaded CSV file
+        fileStream.pipe(csv())  // The file stream is piped through the csv() function, which parses the CSV data row by row
             .on('data', (data) => results.push(data))
             .on('end', async () => {  // This event is triggered when the entire CSV file has been read and parsed
                 try {
-                    await Dept.bulkCreate(results);  // bulkCreate method to insert all rows of data stored in the results array
-                    fs.unlinkSync(req.file.path); // Delete the file after processing
+                    await Dept.bulkCreate(results);  // `bulkCreate` inserts all rows of data stored in the results array
+                    fs.unlinkSync(req.file.path);  // Deletes the file after processing
                     res.status(200).json({ message: 'CSV data imported successfully!' });
                 } catch (error) {
                     console.error('Error inserting data into the database:', error);

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validation = require('../Middleware/validation');
+const upload = require('../Middleware/uploadMiddleware');  // Import the Multer instance
 const userController = require('../Controller/userController');
 
 router.get('/deptList', userController.deptList);
@@ -45,6 +46,6 @@ router.post('/taskTimer', userController.taskTimer);
 router.post('/pieTask', userController.pieTask);
 router.post('/userProfile', userController.userProfile);
 router.post('/getTaskApi', userController.getTaskApi);
-router.post('/importCsv', userController.importCsv);
+router.post('/import-csv', upload.single('file'), userController.importCsv);
 
 module.exports = router;
