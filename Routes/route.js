@@ -46,6 +46,6 @@ router.post('/taskTimer', userController.taskTimer);
 router.post('/pieTask', userController.pieTask);
 router.post('/userProfile', userController.userProfile);
 router.post('/getTaskApi', userController.getTaskApi);
-router.post('/import-csv', upload.single('file'), userController.importCsv);
+router.post('/importCsv', upload.single('file'), userController.importCsv);
 
 module.exports = router;
