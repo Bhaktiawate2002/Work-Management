@@ -47,5 +47,8 @@ router.post('/pieTask', userController.pieTask);
 router.post('/userProfile', userController.userProfile);
 router.post('/getTaskApi', userController.getTaskApi);
 router.post('/importCsv', upload.single('file'), userController.importCsv);
+router.post('/deleteUserApi', userController.deleteUserApi);
+router.post('/getCurrentUser', userController.getCurrentUser);
+router.post('/editUser', userController.editUser);
 
 module.exports = router;

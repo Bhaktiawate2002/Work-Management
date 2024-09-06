@@ -1,5 +1,6 @@
 const db = require('../Config/dbConfig');
 const { Sequelize } = require('sequelize');
+const { QueryTypes } = require('sequelize');
 
 const fs = require('fs');
 const path = require('path');
@@ -1512,11 +1513,220 @@ exports.importCsv = async (req, res) => {
                     res.status(200).json({ message: 'CSV data imported successfully!' });
                 } catch (error) {
                     console.error('Error inserting data into the database:', error);
+
                     res.status(500).json({ message: 'Failed to import CSV data into the database' });
                 }
             });
     } catch (error) {
         console.error('Error reading the CSV file:', error);
         res.status(500).json({ message: 'Failed to process the CSV file' });
+    }
+};
+
+// exports.addFavProject = async (req, res) => {
+//     try {
+//       const errors = validationResult(req);
+//       if (!errors.isEmpty()) {
+//         return res.status(422).json({ success: 0, message: errors.array()[0].msg });
+//       }
+
+//       const { project_id, user_id, is_fav } = req.body;
+
+//       if (is_fav == 1) {
+//         await FavProject.create({
+//           project_id: project_id,
+//           user_id: user_id,
+//           is_fav: 1
+//         }).then(async result => {
+//           return res.status(200).json({ success: 1, message: 'Project marked as favorite successfully' });
+//         })
+//       }
+//       else {
+//         await FavProject.findOneAndRemove({
+//           project_id: project_id,
+//           user_id: user_id
+//         }).then(async result => {
+//           return res.status(200).json({ success: 1, message: 'Removed favorite successfully' });
+//         })
+//       }
+//     } catch (error) {
+//       console.error('Error', error);
+//       return res.status(500).json({ success: 0, message: 'Server error' });
+//     }
+//   }
+
+//   //Update  Company Details
+// exports.editCompany = async (req, res) => {
+//     try {
+//       const errors = validationResult(req);
+//       if (!errors.isEmpty()) {
+//         res.status(200).json({ message: errors.array()[0].msg });
+//         return;
+//       }
+//       else {
+//         var company_id = req.body.company_id
+
+//         Company.findOne({
+//           where: {
+//             id: company_id
+//           }
+//         })
+//           .then(async company => {
+//             if (company) {
+//               await Company.update({
+
+//                 company_name: req.body.company_name,
+//                 owner_name: req.body.owner_name,
+//                 email: req.body.email,
+//                 country_code: req.body.country_code,
+//                 mobile_no: req.body.mobile_no,
+//                 country: req.body.country,
+//                 state: req.body.state,
+//                 city: req.body.city,
+//                 address: req.body.address,
+//                 pincode: req.body.pincode,
+//                 isActive: 1,
+//                 // plan_type: req.body.plan_type,
+//                 // subscription_dt: req.body.subscription_dt,
+//                 // renewal_dt: req.body.renewal_dt
+//               },
+//                 {
+//                   where: { id: company_id }
+//                 })
+//                 .then(companies => {
+//                   res.status(200).json({ success: 1, message: "Company details updated successfully!" });
+//                 })
+//                 .catch(err => {
+//                   res.status(200).json({ success: 0, message: err.message });
+//                 });
+//             }
+//             else {
+//               res.status(200).json({ success: 0, message: "Company Not found." });
+//             }
+
+//           })
+//           .catch(err => {
+//             res.status(200).json({ success: 0, message: "Company Not found." });
+//           });
+//       }
+//     }
+//     catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+// Edit user 
+exports.editUser = (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(200).json({ message: errors.array()[0].msg });
+            return;
+        }
+        else {
+            User.findOne({
+                where: {
+                    id: req.body.id
+                }
+            })
+                .then(async user => {
+                    if (user) {
+                        await User.update({
+                            name: req.body.name,
+                            email: req.body.email,
+                            contact: req.body.contact,
+                            address: req.body.address,
+                            roleId: req.body.roleId,
+                        },
+                            { where: { id: req.body.id } })
+                            .then(user => {
+                                TaskAssign.update({
+                                    roleId: req.body.roleId,
+                                }, {
+                                    where: { userId: req.body.userId }
+                                })
+                                    .then(assignUser => {
+                                        res.status(200).json({ success: 1, message: "User updated successfully!" });
+                                    })
+                                    .catch(err => {
+                                        res.status(200).json({ message: err.message });
+                                    });
+                            })
+                            .catch(err => {
+                                res.status(200).json({ message: err.message });
+                            });
+                    }
+                    else {
+                        res.status(200).json({ success: 0, message: "User Not found." });
+                    }
+                })
+                .catch(err => {
+
+                    res.status(200).json({ success: 0, message: "User Not found." });
+                });
+        }
+    }
+    catch (err) {
+        res.status(200).json(err);
+    }
+};
+
+exports.deleteUserApi = async (req, res, next) => {
+    try {
+        // Validate request
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
+        }
+        const user = await User.findOne({
+            where: {
+                id: req.body.id
+            }
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        // Delete task assignments related to the user
+        await TaskAssign.destroy({
+            where: { userId: req.body.id }
+        });
+        // Optionally, you could delete the user itself after task deletion
+        await user.destroy();
+
+        return res.status(200).json({ message: "User and related task assignments deleted successfully." });
+    } catch (err) {
+        // Catch any unexpected errors and pass to error handling middleware
+        return next(err);
+    }
+};
+
+exports.getCurrentUser = async (req, res) => {
+    try {
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg }); // 400 for client-side error
+        }
+
+        // Secure query to prevent SQL injection
+        const result = await db.sequelize.query(  //  const result = await db.sequelize.query(`SELECT * FROM "tblUsers" WHERE id = ${req.body.id}`, { type: QueryTypes.SELECT });
+            `SELECT name, email, contact, address
+         FROM "tblUsers" 
+        WHERE id = :id`,  // Use :id as placeholder
+            {
+                replacements: { id: req.body.userId },  // Match the key with the placeholder
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if (result.length !== 0) {
+            res.status(200).json({ success: 1, data: result[0] }); // Assuming only one user will be returned
+        } else {
+
+            res.status(404).json({ success: 0, message: "User not found." });
+        }
+    } catch (err) {
+        console.error(err); // Log error details for debugging
+        res.status(500).json({ success: 0, message: "Server error", error: err.message });
     }
 };
