@@ -28,6 +28,8 @@ const Mp = Sequelize.Op;
 
 const ExcelJS = require('exceljs');
 
+const PDFDocument = require('pdfkit');
+
 const Org = db.orgs;
 const User = db.user;
 const Dept = db.dept;
@@ -1729,4 +1731,42 @@ exports.getCurrentUser = async (req, res) => {
         console.error(err); // Log error details for debugging
         res.status(500).json({ success: 0, message: "Server error", error: err.message });
     }
+};
+
+// Function to generate PDF
+exports.createPdf = (req, res) => {
+    // Create a new PDF document
+    const doc = new PDFDocument();
+
+    // Set up file path and name
+    const fileName = 'generated.pdf';
+    const filePath = path.join(__dirname, fileName);
+
+    // Pipe the PDF into a writable stream
+    const writeStream = fs.createWriteStream(filePath);
+    doc.pipe(writeStream);
+
+    // Add content to the PDF
+    doc.fontSize(25).text('Hello, this is a generated PDF file!', 100, 100);
+
+    // Add more content if needed
+    doc.text('You can add more text, images, tables, etc.', 100, 150);
+
+    // Add image
+    doc.image('path_to_image.jpg', { fit: [250, 300], align: 'center', valign: 'center' });
+
+    // Finalize the PDF and end the stream
+    doc.end();
+
+    // Send the file after it's written
+    writeStream.on('finish', () => {
+        res.download(filePath, (err) => {
+            if (err) {
+                res.status(500).send('Error in downloading the file');
+            } else {
+                // Delete the file after download to free up space
+                fs.unlinkSync(filePath);
+            }
+        });
+    });
 };
